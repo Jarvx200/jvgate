@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "elements.h": "c",
+        "stdint.h": "c",
+        "gates.h": "c"
+    }
+}

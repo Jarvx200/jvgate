@@ -1,41 +1,22 @@
 #ifndef GATES_H
 #define GATES_H
 
-#include "elements.h"
-#include "gate_functions.h"
-
-enum Type{
-    NOT,
-    AND,
-    NAND,
-    OR,
-    NOR,
-    XOR,
-    XNOR
-};
-
-void (*binds[])(struct LogicElement*) = {
-    &not_comp,
-    &and_comp,
-    &nand_comp,
-    &or_comp,
-    &nor_comp,
-    &xor_comp,
-    &xnor_comp
-};
-
+#include "logic_elements.h"
+#include "graphic_elements.h"
 
 
 
 typedef struct {
     GraphicElement g;
     struct LogicElement   l;
-    Type t;
+    enum Type t;
 } LogicGate;
 
 
 
-LogicGate* create(Type t);
+LogicGate* create(enum Type t);
+void connect(LogicGate* x, LogicGate* y);
+
 
 
 #endif

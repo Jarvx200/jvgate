@@ -1,10 +1,7 @@
-#include "elements.h"
-
-
-//TODO: Error recovery in case of insufficient i sources
+#include "logic_elements.h"
 
 void not_comp(LogicElement* self){
-    self->o = !self->i[0]->o; // Using logical not to avoid bit flipping problems
+    self->o = !self->i[0]->o; 
 }
 
 void and_comp(LogicElement* self){
@@ -30,3 +27,13 @@ void xor_comp(LogicElement* self){
 void xnor_comp(LogicElement* self){
     self->o = self->i[0]->o == self->i[1]->o;
 }
+
+const LogicElementMeta binds[] = {
+    [NOT] = { &not_comp, 1},
+    [AND] = { &and_comp, 2},
+    [NAND] = { &nand_comp, 2},
+    [OR] = { &or_comp, 2},
+    [NOR] = { &nor_comp, 2},
+    [XOR] = { &xor_comp, 2},
+    [XNOR] = { &xnor_comp, 2},
+};

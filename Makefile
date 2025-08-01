@@ -8,4 +8,4 @@ PROGRAM	=	jvgate
 all: $(PROGRAM)
 
 $(PROGRAM): $(SRCDIR)main.c
-	$(CC) $(SRCDIR)main.c $(SRCDIR)gate_functions.c -o $(PROGRAM)
+	$(CC) $(SRCDIR)main.c $(SRCDIR)logic_elements.c $(SRCDIR)gates.c -o $(PROGRAM)
