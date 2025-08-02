@@ -28,7 +28,7 @@ void xnor_comp(LogicElement* self){
     self->o = self->i[0]->o == self->i[1]->o;
 }
 
-const LogicElementMeta binds[] = {
+const LogicElementMeta gateBinds[] = {
     [NOT] = { &not_comp, 1},
     [AND] = { &and_comp, 2},
     [NAND] = { &nand_comp, 2},

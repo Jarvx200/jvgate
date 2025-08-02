@@ -9,13 +9,14 @@
 typedef struct {
     GraphicElement g;
     struct LogicElement   l;
-    enum Type t;
+    enum GateType t;
 } LogicGate;
 
 
 
-LogicGate* create(enum Type t);
+LogicGate* create(enum GateType t);
 void connect(LogicGate* x, LogicGate* y);
+void disconnect(LogicGate* x, LogicGate* y);
 
 
 

@@ -6,7 +6,7 @@
 
 #define TRUE    1
 #define FALSE   0
-typedef char Bool; 
+typedef char GateBool; 
 
 typedef struct LogicElement LogicElement;
 
@@ -25,11 +25,10 @@ typedef struct {
 
 
 
-const extern LogicElementMeta binds[];
+extern const LogicElementMeta gateBinds[];
 
 
-
-enum Type{
+enum GateType{
     NOT,
     AND,
     NAND,
@@ -41,14 +40,13 @@ enum Type{
 
 
 
-
 struct LogicElement{
     struct LogicElement** i;
     size_t max_input;
     size_t input_size;
 
     void (*compute)(struct LogicElement* self);
-    Bool o;
+    GateBool o;
 
 };
 

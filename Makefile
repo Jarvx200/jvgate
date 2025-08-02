@@ -1,11 +1,30 @@
 CC	=	gcc
-FLAGS	=	-Wextra
+CFLAGS	=	-Wextra -Wall 
 
 SRCDIR	=	src/
+LDFLAGS = -lraylib -lm -ldl -lpthread -lGL -lrt -lX11 
+
+
+SRCS := $(wildcard $(SRCDIR)*.c)
+OBJS := $(patsubst $(SRCDIR)%.c, $(SRCDIR)%.o, $(SRCS))
+
+
 
 PROGRAM	=	jvgate
 
 all: $(PROGRAM)
 
-$(PROGRAM): $(SRCDIR)main.c
-	$(CC) $(SRCDIR)main.c $(SRCDIR)logic_elements.c $(SRCDIR)gates.c -o $(PROGRAM)
+$(PROGRAM): $(OBJS)
+	$(CC) $(OBJS) -o $(PROGRAM) $(CFLAGS) $(LDFLAGS)
+
+
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+
+clean: $(PROGRAM)
+	rm -rf $(PROGRAM)
+
+
+.PHONY: clean
