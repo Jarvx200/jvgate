@@ -37,8 +37,11 @@ enum ElementType{
     NOR,
     XOR,
     XNOR,
-    SWITCH
+    SWITCH,
+    OUTPUT
 };
+
+extern uint16_t elementSizes[];
 
 
 
@@ -46,7 +49,6 @@ struct LogicElement{
     struct LogicElement** i;
     size_t max_input;
     size_t input_size;
-
     void (*compute)(struct LogicElement* self);
     GateBool o;
 

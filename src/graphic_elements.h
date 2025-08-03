@@ -26,7 +26,12 @@ struct GraphicElement {
     void (*draw_element)(enum ElementType t,struct GraphicElement* self);
 }; 
 
+extern void (*graphicElementsMeta[])(enum ElementType t,struct GraphicElement*);
 
 void draw_gate(enum ElementType t,struct GraphicElement* self);
+void draw_switch(enum ElementType t,struct GraphicElement* self);
+void draw_output(enum ElementType t,struct GraphicElement* self);
+
+
 
 #endif

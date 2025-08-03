@@ -8,20 +8,36 @@
 #include "raymath.h"
 
 typedef struct Element Element;
+typedef struct Switch  Switch;
+typedef struct Output Output;
+typedef struct Gate Gate;
 
 struct Element{
+    enum ElementType t;
     GraphicElement g;
     LogicElement   l;
-    enum ElementType t;
-    Element* corespondence;
+    struct Element* corespondence;
 } ;
 
+struct Switch{
+    struct Element e;
+    GateBool on;
+};
+
+struct Output{
+    struct Element e;
+    GateBool powered;
+};
+
+struct Gate{
+    struct Element e;
+};
 
 
-Element* create_gate(enum ElementType t, Vector2 coords);
+Element* create_element(enum ElementType t, Vector2 coords);
 void connect_gate(Element* x, Element* y);
 void disconnect_gate(Element* x, Element* y);
-void create_inputs_and_output(Element* new_logic_gate, Vector2 coords);
+void create_inputs_and_output(Element* nlg, Vector2 coords);
 
 
 #endif

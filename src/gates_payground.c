@@ -7,6 +7,7 @@
 #include    "raymath.h"
 #include    "settings.h"
 #include    "elements.h"
+#include    "logic_elements.h"
 
 #define MAX_GATES_SIZE 1024
 
@@ -18,7 +19,7 @@ static float zoom_speed = 0.1f;
 static Vector2 last_mouse_postion;
  
 
-static Element* gates[MAX_GATES_SIZE];
+static Element* elements[MAX_GATES_SIZE];
 static size_t gates_size = 0;
 
 static Element* selected_gate = NULL;
@@ -35,12 +36,12 @@ Element* gate_select(){
 
         Vector2 worldPosition = GetScreenToWorld2D(GetMousePosition(), playground_camera);
 
-        if(worldPosition.x > gates[i]->g.pos.x
-        && worldPosition.y > gates[i]->g.pos.y
-        && worldPosition.x < gates[i]->g.pos.x+100
-        && worldPosition.y < gates[i]->g.pos.y+100
+        if(worldPosition.x > elements[i]->g.pos.x
+        && worldPosition.y > elements[i]->g.pos.y
+        && worldPosition.x < elements[i]->g.pos.x+100
+        && worldPosition.y < elements[i]->g.pos.y+100
         ){
-            return gates[i];
+            return elements[i];
         }
     }
 
@@ -48,9 +49,9 @@ Element* gate_select(){
 }
 
 
-static void add_gate(){
+static void add_gate(enum ElementType t){
     if(gates_size < MAX_GATES_SIZE)
-    gates[gates_size++] = create_gate((int)GetRandomValue(0,6), GetScreenToWorld2D(GetMousePosition(), playground_camera)); 
+    elements[gates_size++] = create_element(t, GetScreenToWorld2D(GetMousePosition(), playground_camera)); 
 }
 
 static void handle_controls(){
@@ -68,13 +69,19 @@ static void handle_controls(){
     }
 
 
-    if(IsKeyReleased(KEY_G)) add_gate();
+    if(IsKeyReleased(KEY_G)) add_gate(SWITCH);
+    if(IsKeyReleased(KEY_H)) add_gate(NOT);
+    if(IsKeyReleased(KEY_J)) add_gate(OUTPUT);
 
-    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){ //Extract logic, decouple drawin/handling from general prgogram
         Element* clicked = gate_select();
 
 
         if(clicked != NULL){
+            if(clicked->t == SWITCH){
+                Switch* sw = (Switch*) clicked; // Kewl downcast 
+                sw->on = sw->on ? FALSE : TRUE;
+            }
             clicked->g.selected = TRUE;
             if(selected_gate == NULL)
                 selected_gate = clicked;
@@ -102,16 +109,17 @@ static void handle_controls(){
 
 void render_gates(){
     for(size_t i=0 ; i < gates_size; i++){
-        gates[i]->g.draw_element(gates[i]->t, &gates[i]->g);
-        for(size_t j=0 ; j < gates[i]->g.connection_points_size; j++){
+
+        elements[i]->g.draw_element(elements[i]->t, &elements[i]->g);
+        for(size_t j=0 ; j < elements[i]->g.connection_points_size; j++){
             DrawLineBezier(
-                gates[i]->g.connection_points[j].corespondence->coords,
-                gates[i]->g.connection_points[j].coords,
+                elements[i]->g.connection_points[j].corespondence->coords,
+                elements[i]->g.connection_points[j].coords,
                 2,
                 BLACK
             );
 
-            printf("%f\n", gates[i]->g.connection_points[j].corespondence->coords.x);
+
         }
         
             

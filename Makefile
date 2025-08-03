@@ -16,6 +16,7 @@ all: $(PROGRAM)
 
 $(PROGRAM): $(OBJS)
 	$(CC) $(OBJS) -o $(PROGRAM) $(CFLAGS) $(LDFLAGS)
+	rm -rf $(OBJS) # TODO: might employ fractional compilation based on modules and hot reloading later
 
 
 

@@ -8,48 +8,91 @@
 #include    <malloc.h>
 #include    <stddef.h>
 
-Element* create_gate(enum ElementType t, Vector2 coords){
-    Element* new_logic_gate = (Element*)(malloc(sizeof(Element)));
 
 
-    new_logic_gate->l.compute = gateBinds[t].comp;
-    new_logic_gate->l.i = (LogicElement**)(malloc(sizeof(LogicElement*)*gateBinds[t].input_size));
-    new_logic_gate->l.max_input = gateBinds[t].input_size;
-    new_logic_gate->l.input_size = 0;
+Switch* create_switch(Element e);
+Gate* create_gate(Element e);
+Output* create_output(Element e);
 
-    new_logic_gate->t = t;
+Element* create_element(enum ElementType t, Vector2 coords){
+    Element e = {
+        .t = t,
+        .g.pos = coords,
+        .l.compute = gateBinds[t].comp,
+        .l.i = malloc(sizeof(LogicElement*) * gateBinds[t].input_size), 
+        .l.max_input = gateBinds[t].input_size,
+        .l.input_size = 0,
+        .corespondence = NULL,
+        .g.connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*gateBinds[t].input_size),
+        .g.max_connection_points = gateBinds[t].input_size,
+        .g.connection_points_size=0,
+        .g.draw_element = (t < SWITCH ? graphicElementsMeta[0] : graphicElementsMeta[t])
+    };
 
-    new_logic_gate->g.pos.x = coords.x;
-    new_logic_gate->g.pos.y = coords.y;
-    new_logic_gate->g.draw_element = draw_gate;
-    new_logic_gate->g.connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*gateBinds[t].input_size);
-    new_logic_gate->g.max_connection_points = new_logic_gate->l.max_input;
-    new_logic_gate->g.connection_points_size=0;
+    create_inputs_and_output(&e, coords);
 
-    create_inputs_and_output(new_logic_gate, coords);
-  
-    return new_logic_gate;
+    
+    Element* wrapper;
+    if(t >= NOT && t <= XNOR)
+        wrapper = (Element*)create_gate(e);
+    else if(t == SWITCH)
+       wrapper =  (Element*)create_switch(e);
+    else if (t == OUTPUT)
+        wrapper = (Element*)create_output(e);
+
+
+    return wrapper;
+}
+
+Output* create_output(Element e){
+    Output* ns = (Output*)(malloc(sizeof(Output)));
+    ns->e = e;
+
+    return ns;
+
 }
 
 
-void create_inputs_and_output(Element* new_logic_gate, Vector2 coords){
-      for(size_t i=0 ; i < new_logic_gate->g.max_connection_points; i++){
-        new_logic_gate->g.connection_points[i].coords.x = coords.x;
-        new_logic_gate->g.connection_points[i].coords.y = coords.y+i*30+10;
+Switch* create_switch(Element e){
+    Switch* ns = (Switch*)(malloc(sizeof(Switch)));
+    ns->e = e;
+
+    return ns;
+}
+
+Gate* create_gate(Element e){
+    Gate* nlg = (Gate*)(malloc(sizeof(Gate)));
+
+    nlg->e = e;
+    
+  
+    return nlg;
+
+}
+
+//FIX: Rendering based on actula object size
+void create_inputs_and_output(Element* nlg, Vector2 coords){
+      for(size_t i=0 ; i < nlg->g.max_connection_points; i++){
+        nlg->g.connection_points[i].coords.x = coords.x;
+        nlg->g.connection_points[i].coords.y = coords.y+i*30+10;
     }
 
-    new_logic_gate->g.connection_output_point.coords.x = coords.x+100;
-    new_logic_gate->g.connection_output_point.coords.y = coords.y+45;
-    new_logic_gate->g.selected = FALSE;
+    nlg->g.connection_output_point.coords.x = coords.x+elementSizes[nlg->t > XNOR ? nlg->t : 0];
+    nlg->g.connection_output_point.coords.y = coords.y+elementSizes[nlg->t > XNOR ? nlg->t : 0]/2-5;
+    nlg->g.selected = FALSE;
 
 }
 
 // y input x output
 void connect_gate(Element* x, Element* y){
-    if(y->l.input_size == y->l.max_input  || x->g.connection_points_size == x->g.max_connection_points )
+
+    
+    if(y->l.input_size == y->l.max_input  || x->corespondence != NULL)
         return;
+    printf("\nElement type: %d - %d \n", x->t, y->t);
     y->l.i[y->l.input_size++] = &(x->l);
     x->corespondence = y;
+    
     
 
     y->g.connection_points[y->g.connection_points_size++].corespondence=&x->g.connection_output_point;
