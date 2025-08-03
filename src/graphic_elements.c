@@ -15,14 +15,16 @@ char* nameBinds[] = {
    [OUTPUT] = "OUTPUT"
 };
 
-const void (*graphicElementsMeta[])(enum ElementType,struct GraphicElement*) = {
-    [0] = &draw_gate,
-    [SWITCH] = &draw_switch,
-    [OUTPUT] = &draw_output
+typedef void (*DrawFunction)(enum ElementType,struct GraphicElement*, ...);
+
+const void (*graphicElementsMeta[])(enum ElementType,struct GraphicElement*, ...) = {
+    [0] = (DrawFunction)&draw_gate,
+    [SWITCH] = (DrawFunction)&draw_switch,
+    [OUTPUT] = (DrawFunction)&draw_output
 
 };   
 
-void draw_gate(enum ElementType t,struct GraphicElement* self){
+void draw_gate(enum ElementType t,struct GraphicElement* self ){
     DrawRectangleLines(self->pos.x, self->pos.y, 100, 100, self->selected ? GREEN : BLACK );
     DrawText(nameBinds[t],self->pos.x+10, self->pos.y+10, 12, BLACK);
 
@@ -32,13 +34,13 @@ void draw_gate(enum ElementType t,struct GraphicElement* self){
     }
 }
 
-void draw_switch(enum ElementType t, struct GraphicElement* self){
+void draw_switch(enum ElementType t, struct GraphicElement* self, GateBool on){
     DrawRectangleLines(self->pos.x, self->pos.y, 50, 50, self->selected ? GREEN : BLACK );
-    DrawText("OFF",self->pos.x+10, self->pos.y+10, 12, BLACK);
+    DrawText(on == TRUE ? "ON" : "OFF" ,self->pos.x+10, self->pos.y+10, 12, BLACK);
     DrawCircle(self->connection_output_point.coords.x, self->connection_output_point.coords.y, 5, RED);
 }
 
-void draw_output(enum ElementType t, struct GraphicElement* self)
+void draw_output(enum ElementType t, struct GraphicElement* self, GateBool powered )
 {
     DrawRectangleLines(self->pos.x, self->pos.y, 50, 50, self->selected ? GREEN : BLACK );
     DrawRectangle(self->pos.x+10, self->pos.y+10, 30, 30, self->selected ? GREEN : BLACK );

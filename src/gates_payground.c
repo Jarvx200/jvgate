@@ -110,7 +110,25 @@ static void handle_controls(){
 void render_gates(){
     for(size_t i=0 ; i < gates_size; i++){
 
-        elements[i]->g.draw_element(elements[i]->t, &elements[i]->g);
+        switch (elements[i]->t)
+        {
+        case NOT:
+        case NOR:
+        case XOR:
+        case XNOR:
+        case AND:
+        case NAND:
+        case OR:
+            elements[i]->g.draw_element(elements[i]->t, &elements[i]->g);
+            break;
+        case SWITCH:
+            Switch *sw = (Switch*) elements[i];
+            elements[i]->g.draw_element(elements[i]->t, &elements[i]->g, (GateBool)sw->on);
+
+        default:
+            elements[i]->g.draw_element(elements[i]->t, &elements[i]->g);
+            break;
+        }
         for(size_t j=0 ; j < elements[i]->g.connection_points_size; j++){
             DrawLineBezier(
                 elements[i]->g.connection_points[j].corespondence->coords,

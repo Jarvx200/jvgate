@@ -89,7 +89,6 @@ void connect_gate(Element* x, Element* y){
     
     if(y->l.input_size == y->l.max_input  || x->corespondence != NULL)
         return;
-    printf("\nElement type: %d - %d \n", x->t, y->t);
     y->l.i[y->l.input_size++] = &(x->l);
     x->corespondence = y;
     
