@@ -1,5 +1,6 @@
 #include "logic_elements.h"
 
+
 void not_comp(LogicElement* self){
     self->o = !self->i[0]->o; 
 }

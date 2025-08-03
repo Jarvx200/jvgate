@@ -6,20 +6,22 @@
 #include    "raylib.h"
 #include    "raymath.h"
 #include    "settings.h"
-#include    "gates.h"
+#include    "elements.h"
 
+#define MAX_GATES_SIZE 1024
 
 #define max(a,b) ((a) > (b) ? a : b)
+
 
 static float zoom_speed = 0.1f;
 
 static Vector2 last_mouse_postion;
  
 
-static LogicGate* gates[1024];
+static Element* gates[MAX_GATES_SIZE];
 static size_t gates_size = 0;
 
-static LogicGate* selected_gate = NULL;
+static Element* selected_gate = NULL;
 
 Camera2D playground_camera = {
     .target =   (Vector2){0,0},
@@ -28,7 +30,7 @@ Camera2D playground_camera = {
 };
 
 
-LogicGate* gate_select(){
+Element* gate_select(){
     for(size_t i=0 ; i < gates_size; i++){
 
         Vector2 worldPosition = GetScreenToWorld2D(GetMousePosition(), playground_camera);
@@ -47,6 +49,7 @@ LogicGate* gate_select(){
 
 
 static void add_gate(){
+    if(gates_size < MAX_GATES_SIZE)
     gates[gates_size++] = create_gate((int)GetRandomValue(0,6), GetScreenToWorld2D(GetMousePosition(), playground_camera)); 
 }
 
@@ -68,7 +71,7 @@ static void handle_controls(){
     if(IsKeyReleased(KEY_G)) add_gate();
 
     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-        LogicGate* clicked = gate_select();
+        Element* clicked = gate_select();
 
 
         if(clicked != NULL){
@@ -84,7 +87,11 @@ static void handle_controls(){
             }
         } else { 
             if(selected_gate != NULL)
-                { selected_gate->g.selected = FALSE; selected_gate=NULL;}
+                {
+                    selected_gate->g.pos = GetScreenToWorld2D(GetMousePosition(), playground_camera);
+                    create_inputs_and_output(selected_gate, selected_gate->g.pos);
+                    selected_gate->g.selected = FALSE; selected_gate=NULL;
+                }
         }
     }
 
@@ -114,7 +121,7 @@ void render_gates(){
 void start_graphics(){
 
     
-    
+     
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "jvgate"); 
     SetTargetFPS(60);

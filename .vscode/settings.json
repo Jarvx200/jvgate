@@ -2,7 +2,7 @@
     "files.associations": {
         "elements.h": "c",
         "stdint.h": "c",
-        "gates.h": "c",
+        "elements.h": "c",
         "gates_playground.h": "c",
         "malloc.h": "c",
         "stdlib.h": "c",
@@ -16,6 +16,8 @@
         "tuple": "c",
         "variant": "c",
         "graphic_elements.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "settings.h": "c",
+        "raymath.h": "c"
     }
 }

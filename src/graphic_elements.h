@@ -23,10 +23,10 @@ struct GraphicElement {
     size_t connection_points_size;
     GateBool selected;
 
-    void (*draw_element)(enum GateType t,struct GraphicElement* self);
+    void (*draw_element)(enum ElementType t,struct GraphicElement* self);
 }; 
 
 
-void draw_gate(enum GateType t,struct GraphicElement* self);
+void draw_gate(enum ElementType t,struct GraphicElement* self);
 
 #endif
