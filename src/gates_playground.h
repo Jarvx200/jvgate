@@ -2,7 +2,7 @@
 #define GATES_PLAYGROUND_H
 
 
-void initialize_window();
+void start_graphics();
 
 
 #endif

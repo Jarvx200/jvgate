@@ -7,6 +7,15 @@
         "malloc.h": "c",
         "stdlib.h": "c",
         "stdio.h": "c",
-        "raylib.h": "c"
+        "raylib.h": "c",
+        "chrono": "c",
+        "logic_elements.h": "c",
+        "string_view": "c",
+        "format": "c",
+        "functional": "c",
+        "tuple": "c",
+        "variant": "c",
+        "graphic_elements.h": "c",
+        "stddef.h": "c"
     }
 }

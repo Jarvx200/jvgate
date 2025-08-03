@@ -10,6 +10,12 @@ typedef char GateBool;
 
 typedef struct LogicElement LogicElement;
 
+enum LogicElementType {
+    GATE,
+    SWITCH,
+    OUTPUT
+};
+
 void not_comp(LogicElement* self);
 void and_comp(LogicElement* self);
 void nand_comp(LogicElement* self);
@@ -42,6 +48,7 @@ enum GateType{
 
 struct LogicElement{
     struct LogicElement** i;
+    enum LogicElementType type;
     size_t max_input;
     size_t input_size;
 

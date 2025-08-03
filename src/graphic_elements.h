@@ -2,18 +2,31 @@
 #define GRPAHIC_ELEMENTS_H
 
 #include <stdint.h>
+#include "raylib.h"
+#include "logic_elements.h"
 
 typedef struct GraphicElement GraphicElement;
+typedef struct ConnectionPoint ConnectionPoint;
 
+
+struct ConnectionPoint{
+    Vector2 coords;
+    struct ConnectionPoint* corespondence;
+};
 
 struct GraphicElement {
 
-    int16_t x;
-    int16_t y;
+    Vector2 pos;
+    struct ConnectionPoint* connection_points;
+    struct ConnectionPoint connection_output_point;
+    size_t max_connection_points;
+    size_t connection_points_size;
+    GateBool selected;
 
-    void (*draw)(struct GraphicElement* self);
+    void (*draw_element)(enum GateType t,struct GraphicElement* self);
 }; 
 
 
+void draw_gate(enum GateType t,struct GraphicElement* self);
 
 #endif
