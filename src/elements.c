@@ -20,7 +20,8 @@ Element* create_element(enum ElementType t, Vector2 coords){
         .g.pos = coords,
         .l.compute = gateBinds[t].comp,
         .l.i = malloc(sizeof(LogicElement*) * gateBinds[t].input_size), 
-        .l.max_input = gateBinds[t].input_size,
+        .l.max_input  = gateBinds[t].input_size,
+        .l.max_input_copy = gateBinds[t].input_size,
         .l.input_size = 0,
         .corespondence = NULL,
         .g.connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*gateBinds[t].input_size),
@@ -45,10 +46,12 @@ Element* create_element(enum ElementType t, Vector2 coords){
 }
 
 Output* create_output(Element e){
-    Output* ns = (Output*)(malloc(sizeof(Output)));
-    ns->e = e;
+    Output* no = (Output*)(malloc(sizeof(Output)));
+    no->e = e;
 
-    return ns;
+    no->powered = FALSE;
+
+    return no;
 
 }
 
@@ -56,6 +59,8 @@ Output* create_output(Element e){
 Switch* create_switch(Element e){
     Switch* ns = (Switch*)(malloc(sizeof(Switch)));
     ns->e = e;
+    ns->on = FALSE;
+    ns->e.l.o = FALSE;
 
     return ns;
 }
@@ -64,6 +69,7 @@ Gate* create_gate(Element e){
     Gate* nlg = (Gate*)(malloc(sizeof(Gate)));
 
     nlg->e = e;
+
     
   
     return nlg;

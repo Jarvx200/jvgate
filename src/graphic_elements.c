@@ -17,7 +17,7 @@ char* nameBinds[] = {
 
 typedef void (*DrawFunction)(enum ElementType,struct GraphicElement*, ...);
 
-const void (*graphicElementsMeta[])(enum ElementType,struct GraphicElement*, ...) = {
+void (*graphicElementsMeta[])(enum ElementType,struct GraphicElement*, ...) = {
     [0] = (DrawFunction)&draw_gate,
     [SWITCH] = (DrawFunction)&draw_switch,
     [OUTPUT] = (DrawFunction)&draw_output
@@ -43,7 +43,7 @@ void draw_switch(enum ElementType t, struct GraphicElement* self, GateBool on){
 void draw_output(enum ElementType t, struct GraphicElement* self, GateBool powered )
 {
     DrawRectangleLines(self->pos.x, self->pos.y, 50, 50, self->selected ? GREEN : BLACK );
-    DrawRectangle(self->pos.x+10, self->pos.y+10, 30, 30, self->selected ? GREEN : BLACK );
+    DrawRectangle(self->pos.x+10, self->pos.y+10, 30, 30, powered == TRUE ? RED : BLACK );
     for(size_t i=0 ; i < self->max_connection_points; i++){
         DrawCircle(self->connection_points[i].coords.x, self->connection_points[i].coords.y, 5, GREEN);
     }

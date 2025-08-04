@@ -27,6 +27,7 @@ struct GraphicElement {
 }; 
 
 extern void (*graphicElementsMeta[])(enum ElementType t,struct GraphicElement*, ...);
+extern char* nameBinds[];
 
 void draw_gate(enum ElementType t,struct GraphicElement* self);
 void draw_switch(enum ElementType t,struct GraphicElement* self, GateBool on);

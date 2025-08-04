@@ -18,9 +18,12 @@ void or_comp(LogicElement* self);
 void nor_comp(LogicElement* self);
 void xor_comp(LogicElement* self);
 void xnor_comp(LogicElement* self);
+void switch_comp(LogicElement* self, GateBool powered);
+
+typedef void (*ComputeFunction)(struct LogicElement*, ...);   
 
 typedef struct {
- void (*comp)(struct LogicElement*);   
+ void (*comp)(struct LogicElement*, ...);   
  size_t input_size;
 } LogicElementMeta;
 
@@ -49,7 +52,8 @@ struct LogicElement{
     struct LogicElement** i;
     size_t max_input;
     size_t input_size;
-    void (*compute)(struct LogicElement* self);
+    size_t max_input_copy;
+    ComputeFunction compute; 
     GateBool o;
 
 };
