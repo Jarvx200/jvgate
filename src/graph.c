@@ -4,7 +4,7 @@
 
 void restore_graph(Element** elements, size_t elemets_size){
     for(size_t i=0 ; i < elemets_size; i++)
-        elements[i]->l.max_input_copy = elements[i]->l.max_input;
+        elements[i]->l.max_input_copy = elements[i]->l.input_size;
 }
 
 
@@ -24,17 +24,16 @@ void compute_output(Element* e){
             e->l.compute(&e->l, ((Switch*)e)->on);
             break;
         case OUTPUT:
-            ((Output*)e)->powered = e->l.i[0]->o; 
+            e->l.compute(&e->l, &(((Output*)e)->powered));
             break;
         default:
             break;
     }
 
 
-    printf("%s - %d \n", nameBinds[e->t], e->l.o);
     if(e->corespondence)
     e->corespondence->l.max_input_copy-=1;
-    e->l.max_input_copy = -1;
+    e->l.max_input_copy= -1;
 }
 
 void top_sort(Element** elements, size_t elements_size, GateBool going){
@@ -44,6 +43,7 @@ void top_sort(Element** elements, size_t elements_size, GateBool going){
     }
     GateBool changed = FALSE;
     for(size_t i=0; i < elements_size; i++){
+        if(elements[i]->l.input_size != elements[i]->l.max_input) { puts("INVALID CIRCUIT\n"); going = FALSE; break;}
         if(elements[i]->l.max_input_copy == 0) { compute_output(elements[i]), changed = TRUE;}
     }
     top_sort(elements, elements_size, changed);

@@ -32,6 +32,14 @@ void xnor_comp(LogicElement* self){
 void switch_comp(LogicElement* self, GateBool on){
     self->o = on;
 }
+void output_comp(LogicElement* self, GateBool *powered){
+    if(self->i[0] != NULL)
+        *powered=self->i[0]->o;
+    else
+        *powered=FALSE;
+}
+
+
 
 //TODO: Output size as well
 const LogicElementMeta gateBinds[] = {
@@ -43,5 +51,5 @@ const LogicElementMeta gateBinds[] = {
     [XOR] = { (ComputeFunction)&xor_comp, 2},
     [XNOR] = { (ComputeFunction)&xnor_comp, 2},
     [SWITCH] = {(ComputeFunction)&switch_comp, 0},
-    [OUTPUT] = {NULL, 1}
+    [OUTPUT] = {(ComputeFunction)&output_comp, 1}
 };

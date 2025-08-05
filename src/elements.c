@@ -14,6 +14,7 @@ Switch* create_switch(Element e);
 Gate* create_gate(Element e);
 Output* create_output(Element e);
 
+
 Element* create_element(enum ElementType t, Vector2 coords){
     Element e = {
         .t = t,
@@ -83,18 +84,20 @@ void create_inputs_and_output(Element* nlg, Vector2 coords){
         nlg->g.connection_points[i].coords.y = coords.y+i*30+10;
     }
 
-    nlg->g.connection_output_point.coords.x = coords.x+element_sizes[nlg->t > XNOR ? nlg->t : 0];
-    nlg->g.connection_output_point.coords.y = coords.y+element_sizes[nlg->t > XNOR ? nlg->t : 0]/2-5;
+    nlg->g.connection_output_point.coords.x = coords.x+element_sizes[nlg->t >= SWITCH ? nlg->t : 0];
+    nlg->g.connection_output_point.coords.y = coords.y+element_sizes[nlg->t >= SWITCH ? nlg->t : 0]/2-5;
     nlg->g.selected = FALSE;
 
 }
 
 // y input x output
 void connect_gate(Element* x, Element* y){
-
     
-    if(y->l.input_size == y->l.max_input  || x->corespondence != NULL)
+    if(y->l.input_size == y->l.max_input  || x->corespondence != NULL){
+        if(x->corespondence == y)
+            disconnect_gate(x,y);
         return;
+    }
     y->l.i[y->l.input_size++] = &(x->l);
     x->corespondence = y;
     
@@ -103,8 +106,25 @@ void connect_gate(Element* x, Element* y){
     y->g.connection_points[y->g.connection_points_size++].corespondence=&x->g.connection_output_point;
 }
 
+// x ouput from y input
 void disconnect_gate(Element* x, Element* y){
-    for(size_t k=0; k < x->l.input_size; k++){
-        if(x->l.i[k] ==  &y->l) { x->l.i[k]=NULL; x->l.input_size-=1; y->corespondence = NULL; return;}
+    if(x->corespondence != y)
+        return;
+
+    GateBool ok = FALSE;
+    for(int i=0; i < y->l.input_size; i++){
+        if(y->l.i[i] == &(x->l)) {y->l.i[i] = NULL; ok = TRUE; continue;}
+        if(ok == TRUE) y->l.i[i-1] = y->l.i[i];
     }
+    y->l.input_size-=1;
+    x->corespondence = NULL;
+
+    ok = FALSE;
+    for(int i=0; i < y->g.connection_points_size; i++){
+        if(y->g.connection_points[i].corespondence == &(x->g.connection_output_point)) {y->g.connection_points[i].corespondence = NULL; ok = TRUE; continue;}
+        if(ok == TRUE) y->g.connection_points[i-1] = y->g.connection_points[i];
+    }
+    y->g.connection_points_size-=1;
+    x->g.connection_output_point.corespondence = NULL;
+
 }

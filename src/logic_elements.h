@@ -18,7 +18,8 @@ void or_comp(LogicElement* self);
 void nor_comp(LogicElement* self);
 void xor_comp(LogicElement* self);
 void xnor_comp(LogicElement* self);
-void switch_comp(LogicElement* self, GateBool powered);
+void switch_comp(LogicElement* self, GateBool on);
+void ouput_comp(LogicElement* self, GateBool powered);
 
 typedef void (*ComputeFunction)(struct LogicElement*, ...);   
 

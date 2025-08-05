@@ -22,12 +22,7 @@
 
 #define max(a,b) ((a) > (b) ? a : b)
 
-static const Color GRID_COLOR = {
-    .r = 0,
-    .g = 0,
-    .b = 0,
-    .a = 32
-};
+
 
 static float zoom_speed = 0.1f;
 
@@ -106,11 +101,10 @@ static void render_gate_drop(){
     Rectangle element_drop = {
         .width  = element_sizes[GET_ELEMENT_SIZE(selected_gate)], 
         .height = element_sizes[GET_ELEMENT_SIZE(selected_gate)],
-        .x  = (int)GetMousePosition().x/CELLSIZE*CELLSIZE,
-        .y  = (int)GetMousePosition().y/CELLSIZE*CELLSIZE
+        .x  = (int)GetScreenToWorld2D(GetMousePosition(), playground_camera).x/CELLSIZE*CELLSIZE,
+        .y  = (int)GetScreenToWorld2D(GetMousePosition(), playground_camera).y/CELLSIZE*CELLSIZE
     };
 
-    DrawText(nameBinds[selected_gate->t], element_drop.x+10, element_drop.y+10, 12, GRAY);
     DrawRectangleRec(element_drop, GRID_COLOR);
     DrawRectangleLinesEx(element_drop, 2, GRAY);
 }
@@ -120,7 +114,7 @@ static void handle_controls(){
     zoom_speed += GetMouseWheelMove() != 0 ? 0.3f : -zoom_speed+0.1f; // zoom acceleration
 
     float zoom_ammount = GetMouseWheelMove()*zoom_speed;
-    playground_camera.zoom = max(playground_camera.zoom+zoom_ammount, 1.0f);
+    playground_camera.zoom = max(playground_camera.zoom+zoom_ammount, 0.5f);
 
     Vector2 current_mouse_position = GetMousePosition();
 
@@ -130,11 +124,11 @@ static void handle_controls(){
     }
 
 
-    if(IsKeyReleased(KEY_K)) top_sort(elements, elements_size, TRUE);
 
     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) handle_click(gate_select());
     if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) handle_select(gate_select());
 
+    if(IsKeyPressed(KEY_D));
 
 
     last_mouse_postion = current_mouse_position;
@@ -142,11 +136,10 @@ static void handle_controls(){
 
 
 void render_grid(){
-    for(int i=0 ; i < SCREEN_HEIGHT / CELLSIZE; i++)
+    for(int i=0; i < SCREEN_HEIGHT / CELLSIZE; i++)
         DrawLine(0, i*CELLSIZE, SCREEN_WIDTH, i*CELLSIZE, GRID_COLOR);
     for(int i=0 ; i < SCREEN_WIDTH / CELLSIZE; i++)
         DrawLine(i*CELLSIZE, 0,  i*CELLSIZE, SCREEN_HEIGHT, GRID_COLOR);
-    render_gate_drop();
 
 }
 
@@ -181,7 +174,7 @@ void render_gates(){
                 elements[i]->g.connection_points[j].corespondence->coords,
                 elements[i]->g.connection_points[j].coords,
                 2,
-                BLACK
+                FGR_COLOR
             );
 
 
@@ -198,6 +191,7 @@ void display_creation_buttons(){
             add_gate(i);
         };
     }
+    if(GuiButton((Rectangle){SCREEN_WIDTH-60, SCREEN_HEIGHT-60, 50,50}, "#131#")){ restore_graph(elements, elements_size); top_sort(elements, elements_size, TRUE);}
 }
 void start_graphics(){
 
@@ -209,12 +203,13 @@ void start_graphics(){
 
     while(!WindowShouldClose()){
         BeginDrawing();
-            ClearBackground(RAYWHITE);
+            ClearBackground(BGR_COLOR);
             display_creation_buttons();
             BeginMode2D(playground_camera);
             DrawText("JVGATE PLAYGROUND", 10, 10, 12, GRAY);
-            render_grid(); 
+            render_grid();  
             render_gates();
+            render_gate_drop();
 
             handle_controls();
         EndDrawing();
