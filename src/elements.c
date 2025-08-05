@@ -83,8 +83,8 @@ void create_inputs_and_output(Element* nlg, Vector2 coords){
         nlg->g.connection_points[i].coords.y = coords.y+i*30+10;
     }
 
-    nlg->g.connection_output_point.coords.x = coords.x+elementSizes[nlg->t > XNOR ? nlg->t : 0];
-    nlg->g.connection_output_point.coords.y = coords.y+elementSizes[nlg->t > XNOR ? nlg->t : 0]/2-5;
+    nlg->g.connection_output_point.coords.x = coords.x+element_sizes[nlg->t > XNOR ? nlg->t : 0];
+    nlg->g.connection_output_point.coords.y = coords.y+element_sizes[nlg->t > XNOR ? nlg->t : 0]/2-5;
     nlg->g.selected = FALSE;
 
 }

@@ -8,6 +8,7 @@
 typedef struct GraphicElement GraphicElement;
 typedef struct ConnectionPoint ConnectionPoint;
 
+#define GET_ELEMENT_SIZE(e) (e->t >= SWITCH ? e->t : 0)
 
 struct ConnectionPoint{
     Vector2 coords;
@@ -26,6 +27,7 @@ struct GraphicElement {
     void (*draw_element)(enum ElementType t,struct GraphicElement* self, ...);
 }; 
 
+extern uint16_t element_sizes[];
 extern void (*graphicElementsMeta[])(enum ElementType t,struct GraphicElement*, ...);
 extern char* nameBinds[];
 

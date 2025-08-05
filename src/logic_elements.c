@@ -45,9 +45,3 @@ const LogicElementMeta gateBinds[] = {
     [SWITCH] = {(ComputeFunction)&switch_comp, 0},
     [OUTPUT] = {NULL, 1}
 };
-
-uint16_t elementSizes[] = {
-    [0] = 100,
-    [SWITCH] = 50,
-    [OUTPUT] = 50
-};

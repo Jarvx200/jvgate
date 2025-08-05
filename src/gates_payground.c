@@ -8,7 +8,12 @@
 #include    "settings.h"
 #include    "elements.h"
 #include    "logic_elements.h"
+#include    "graphic_elements.h"
 #include    "graph.h"
+#include    "../lib/raygui/src/raygui.h"
+
+
+
 
 #define MAX_GATES_SIZE 1024
 
@@ -48,8 +53,8 @@ Element* gate_select(){
 
         if(worldPosition.x > elements[i]->g.pos.x
         && worldPosition.y > elements[i]->g.pos.y
-        && worldPosition.x < elements[i]->g.pos.x+100
-        && worldPosition.y < elements[i]->g.pos.y+100
+        && worldPosition.x < elements[i]->g.pos.x+element_sizes[GET_ELEMENT_SIZE(elements[i])]
+        && worldPosition.y < elements[i]->g.pos.y+element_sizes[GET_ELEMENT_SIZE(elements[i])]
         ){
             return elements[i];
         }
@@ -61,7 +66,53 @@ Element* gate_select(){
 
 static void add_gate(enum ElementType t){
     if(elements_size < MAX_GATES_SIZE)
-    elements[elements_size++] = create_element(t, GetScreenToWorld2D(GetMousePosition(), playground_camera)); 
+    elements[elements_size++] = create_element(t, GetScreenToWorld2D((Vector2){SCREEN_WIDTH/2.0f, SCREEN_HEIGHT/2.0f},playground_camera)); 
+}
+
+static void handle_select(Element* clicked){
+    if(clicked == NULL || clicked == selected_gate){
+        if(selected_gate != NULL){
+            selected_gate->g.pos = GetScreenToWorld2D((Vector2){(int)GetMousePosition().x/CELLSIZE*CELLSIZE, (int)GetMousePosition().y/CELLSIZE*CELLSIZE}, playground_camera);
+            create_inputs_and_output(selected_gate, selected_gate->g.pos);
+            selected_gate->g.selected = FALSE; selected_gate=NULL;
+        }
+        return;
+    } 
+
+    clicked->g.selected = TRUE;
+    
+    if(selected_gate == NULL) { 
+        selected_gate = clicked;
+        return;
+    } 
+
+    connect_gate(selected_gate, clicked);
+    clicked->g.selected = selected_gate->g.selected = FALSE;
+    clicked = NULL; selected_gate= NULL;
+}
+
+static void handle_click(Element* clicked){
+        if(clicked == NULL) return;
+            if(clicked->t == SWITCH){
+                Switch* sw = (Switch*) clicked; // Kewl downcast 
+                sw->on = sw->on ? FALSE : TRUE;
+                clicked->l.compute(&sw->e.l, sw->on);
+            }
+
+}
+
+static void render_gate_drop(){
+    if(selected_gate == NULL) return;
+    Rectangle element_drop = {
+        .width  = element_sizes[GET_ELEMENT_SIZE(selected_gate)], 
+        .height = element_sizes[GET_ELEMENT_SIZE(selected_gate)],
+        .x  = (int)GetMousePosition().x/CELLSIZE*CELLSIZE,
+        .y  = (int)GetMousePosition().y/CELLSIZE*CELLSIZE
+    };
+
+    DrawText(nameBinds[selected_gate->t], element_drop.x+10, element_drop.y+10, 12, GRAY);
+    DrawRectangleRec(element_drop, GRID_COLOR);
+    DrawRectangleLinesEx(element_drop, 2, GRAY);
 }
 
 static void handle_controls(){
@@ -79,40 +130,10 @@ static void handle_controls(){
     }
 
 
-    if(IsKeyReleased(KEY_G)) add_gate(SWITCH);
-    if(IsKeyReleased(KEY_H)) add_gate(NOT);
-    if(IsKeyReleased(KEY_J)) add_gate(OUTPUT);
-    if(IsKeyReleased(KEY_K)) top_sort(elements, elements_size);
+    if(IsKeyReleased(KEY_K)) top_sort(elements, elements_size, TRUE);
 
-    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){ //Extract logic, decouple drawin/handling from general prgogram
-        Element* clicked = gate_select();
-
-
-        if(clicked != NULL){
-            if(clicked->t == SWITCH){
-                Switch* sw = (Switch*) clicked; // Kewl downcast 
-                sw->on = sw->on ? FALSE : TRUE;
-                clicked->l.compute(&sw->e.l, sw->on);
-            }
-            clicked->g.selected = TRUE;
-            if(selected_gate == NULL)
-                selected_gate = clicked;
-            else {
-                if(clicked != selected_gate){
-                connect_gate(selected_gate, clicked);
-                clicked->g.selected = selected_gate->g.selected = FALSE;
-                clicked = NULL; selected_gate= NULL;
-                }
-            }
-        } else { 
-            if(selected_gate != NULL)
-                {
-                    selected_gate->g.pos = GetScreenToWorld2D(GetMousePosition(), playground_camera);
-                    create_inputs_and_output(selected_gate, selected_gate->g.pos);
-                    selected_gate->g.selected = FALSE; selected_gate=NULL;
-                }
-        }
-    }
+    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) handle_click(gate_select());
+    if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) handle_select(gate_select());
 
 
 
@@ -125,6 +146,7 @@ void render_grid(){
         DrawLine(0, i*CELLSIZE, SCREEN_WIDTH, i*CELLSIZE, GRID_COLOR);
     for(int i=0 ; i < SCREEN_WIDTH / CELLSIZE; i++)
         DrawLine(i*CELLSIZE, 0,  i*CELLSIZE, SCREEN_HEIGHT, GRID_COLOR);
+    render_gate_drop();
 
 }
 
@@ -169,6 +191,14 @@ void render_gates(){
     }
 }
 
+void display_creation_buttons(){
+    
+    for(int i=0 ; i < LAST; i++){
+        if (GuiButton((Rectangle){10+60*i, SCREEN_HEIGHT-60, 50, 50}, nameBinds[i])){
+            add_gate(i);
+        };
+    }
+}
 void start_graphics(){
 
     
@@ -177,11 +207,11 @@ void start_graphics(){
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "jvgate"); 
     SetTargetFPS(60);
 
-
     while(!WindowShouldClose()){
         BeginDrawing();
-            BeginMode2D(playground_camera);
             ClearBackground(RAYWHITE);
+            display_creation_buttons();
+            BeginMode2D(playground_camera);
             DrawText("JVGATE PLAYGROUND", 10, 10, 12, GRAY);
             render_grid(); 
             render_gates();

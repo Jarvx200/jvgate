@@ -41,10 +41,10 @@ enum ElementType{
     XOR,
     XNOR,
     SWITCH,
-    OUTPUT
+    OUTPUT,
+    LAST
 };
 
-extern uint16_t elementSizes[];
 
 
 

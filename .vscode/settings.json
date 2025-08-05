@@ -20,6 +20,16 @@
         "raymath.h": "c",
         "algorithm": "c",
         "*.rh": "c",
-        "*.def": "c"
+        "*.def": "c",
+        "graph.h": "c",
+        "raygui.h": "c",
+        "array": "c",
+        "iterator": "c",
+        "initializer_list": "c",
+        "istream": "c",
+        "numeric": "c",
+        "ranges": "c",
+        "text_encoding": "c",
+        "*.inc": "c"
     }
 }

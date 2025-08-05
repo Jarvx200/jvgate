@@ -12,7 +12,14 @@ char* nameBinds[] = {
    [XOR] = "XOR", 
    [XNOR] = "XNOR", 
    [SWITCH] = "SWITCH", 
-   [OUTPUT] = "OUTPUT"
+   [OUTPUT] = "OUTPUT",
+   [LAST]   = NULL
+};
+
+uint16_t element_sizes[] = {
+    [0] = 100,
+    [SWITCH] = 50,
+    [OUTPUT] = 50
 };
 
 typedef void (*DrawFunction)(enum ElementType,struct GraphicElement*, ...);
