@@ -25,10 +25,11 @@ Element* create_element(enum ElementType t, Vector2 coords){
         .l.max_input_copy = gateBinds[t].input_size,
         .l.input_size = 0,
         .corespondence = NULL,
+        .corespondence_size = 0,
         .g.connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*gateBinds[t].input_size),
         .g.max_connection_points = gateBinds[t].input_size,
         .g.connection_points_size=0,
-        .g.draw_element = (t < SWITCH ? graphicElementsMeta[0] : graphicElementsMeta[t])
+        .g.draw_element = (t < SWITCH ? graphicElementsMeta[0] : graphicElementsMeta[t]),
     };
 
     create_inputs_and_output(&e, coords);
@@ -90,16 +91,24 @@ void create_inputs_and_output(Element* nlg, Vector2 coords){
 
 }
 
+
+static GateBool check_corespondence(Element *x, Element *y){
+    for(size_t i=0; i < x->corespondence_size; i++)
+        if(x->corespondence[i] == y) return TRUE;
+    return FALSE;
+}
 // y input x output
 void connect_gate(Element* x, Element* y){
     
-    if(y->l.input_size == y->l.max_input  || x->corespondence != NULL){
-        if(x->corespondence == y)
+    GateBool coresponding = check_corespondence(x,y);
+    if(y->l.input_size == y->l.max_input || coresponding == TRUE){
+        if(coresponding == TRUE)
             disconnect_gate(x,y);
         return;
     }
     y->l.i[y->l.input_size++] = &(x->l);
-    x->corespondence = y;
+
+    x->corespondence[x->corespondence_size++] = y;
     
     
 
@@ -108,22 +117,33 @@ void connect_gate(Element* x, Element* y){
 
 // x ouput from y input
 void disconnect_gate(Element* x, Element* y){
-    if(x->corespondence != y)
-        return;
 
     GateBool ok = FALSE;
-    for(int i=0; i < y->l.input_size; i++){
+    for(size_t i=0; i < y->l.input_size; i++){
         if(y->l.i[i] == &(x->l)) {y->l.i[i] = NULL; ok = TRUE; continue;}
         if(ok == TRUE) y->l.i[i-1] = y->l.i[i];
     }
+
+    if(ok == TRUE)
     y->l.input_size-=1;
-    x->corespondence = NULL;
 
     ok = FALSE;
-    for(int i=0; i < y->g.connection_points_size; i++){
+    for(size_t i=0; i < x->corespondence_size; i++){
+        if(x->corespondence[i] == y){
+            x->corespondence[i]=NULL;
+            ok = TRUE;
+            continue;
+        } if (ok == TRUE){ x->corespondence[i-1] = x->corespondence[i]; }
+    }
+    if(ok == TRUE)
+    x->corespondence_size-=1;
+
+    ok = FALSE;
+    for(size_t i=0; i < y->g.connection_points_size; i++){
         if(y->g.connection_points[i].corespondence == &(x->g.connection_output_point)) {y->g.connection_points[i].corespondence = NULL; ok = TRUE; continue;}
         if(ok == TRUE) y->g.connection_points[i-1] = y->g.connection_points[i];
     }
+    if(ok == TRUE)
     y->g.connection_points_size-=1;
     x->g.connection_output_point.corespondence = NULL;
 

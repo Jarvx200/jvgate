@@ -3,6 +3,7 @@
 
 #include "logic_elements.h"
 #include "graphic_elements.h"
+#include "settings.h"
 
 #include "raylib.h"
 #include "raymath.h"
@@ -16,7 +17,8 @@ struct Element{
     enum ElementType t;
     GraphicElement g;
     LogicElement   l;
-    struct Element* corespondence;
+    struct Element* corespondence[MAX_GATES_SIZE];
+    size_t corespondence_size;
 } ;
 
 struct Switch{

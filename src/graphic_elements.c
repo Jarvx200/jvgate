@@ -32,11 +32,14 @@ void (*graphicElementsMeta[])(enum ElementType,struct GraphicElement*, ...) = {
 
 };   
 
+//TODO: Split drawing by common parts
+
 void draw_gate(enum ElementType t,struct GraphicElement* self ){
     DrawRectangleLines(self->pos.x, self->pos.y, 100, 100, self->selected ? GREEN : FGR_COLOR);
     DrawText(nameBinds[t],self->pos.x+10, self->pos.y+10, 12, FGR_COLOR);
 
     DrawCircle(self->connection_output_point.coords.x, self->connection_output_point.coords.y, 5, RED);
+    
     for(size_t i=0 ; i < self->max_connection_points; i++){
         DrawCircle(self->connection_points[i].coords.x, self->connection_points[i].coords.y, 5, GREEN);
     }

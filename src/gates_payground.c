@@ -13,10 +13,6 @@
 #include    "../lib/raygui/src/raygui.h"
 
 
-
-
-#define MAX_GATES_SIZE 1024
-
 #define CELLSIZE 25
 
 
@@ -24,10 +20,12 @@
 
 
 
+
 static float zoom_speed = 0.1f;
 
 static Vector2 last_mouse_postion;
  
+static const pthread_t input_thread;
 
 static Element* elements[MAX_GATES_SIZE];
 static size_t elements_size = 0;
@@ -109,7 +107,7 @@ static void render_gate_drop(){
     DrawRectangleLinesEx(element_drop, 2, GRAY);
 }
 
-static void handle_controls(){
+void handle_controls(){
 
     zoom_speed += GetMouseWheelMove() != 0 ? 0.3f : -zoom_speed+0.1f; // zoom acceleration
 
@@ -148,15 +146,6 @@ void render_gates(){
 
         switch (elements[i]->t)
         {
-        case NOT:
-        case NOR:
-        case XOR:
-        case XNOR:
-        case AND:
-        case NAND:
-        case OR:
-            elements[i]->g.draw_element(elements[i]->t, &elements[i]->g);
-            break;
         case SWITCH:
             Switch *sw = (Switch*) elements[i];
             elements[i]->g.draw_element(elements[i]->t, &elements[i]->g, (GateBool)sw->on);
@@ -176,11 +165,7 @@ void render_gates(){
                 2,
                 FGR_COLOR
             );
-
-
         }
-        
-            
     }
 }
 
@@ -195,7 +180,6 @@ void display_creation_buttons(){
 }
 void start_graphics(){
 
-    
      
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "jvgate"); 
@@ -203,15 +187,15 @@ void start_graphics(){
 
     while(!WindowShouldClose()){
         BeginDrawing();
+
             ClearBackground(BGR_COLOR);
             display_creation_buttons();
             BeginMode2D(playground_camera);
+            handle_controls();
             DrawText("JVGATE PLAYGROUND", 10, 10, 12, GRAY);
             render_grid();  
             render_gates();
             render_gate_drop();
-
-            handle_controls();
         EndDrawing();
     }
     CloseWindow();

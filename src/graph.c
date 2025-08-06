@@ -31,8 +31,9 @@ void compute_output(Element* e){
     }
 
 
-    if(e->corespondence)
-    e->corespondence->l.max_input_copy-=1;
+    for(int i=0 ; i < e->corespondence_size; i++)
+        e->corespondence[i]->l.max_input_copy-=1;
+
     e->l.max_input_copy= -1;
 }
 
