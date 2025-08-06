@@ -176,7 +176,12 @@ void display_creation_buttons(){
             add_gate(i);
         };
     }
-    if(GuiButton((Rectangle){SCREEN_WIDTH-60, SCREEN_HEIGHT-60, 50,50}, "#131#")){ restore_graph(elements, elements_size); top_sort(elements, elements_size, TRUE);}
+    if(GuiButton((Rectangle){SCREEN_WIDTH-60, SCREEN_HEIGHT-60, 50,50}, "#131#")){ 
+        if(acyclic(elements, elements_size) == TRUE)
+            top_sort(elements, elements_size, TRUE);
+        else 
+            printf("NOT ACYCLIC\n");
+        }
 }
 void start_graphics(){
 

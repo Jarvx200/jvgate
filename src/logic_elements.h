@@ -53,7 +53,6 @@ struct LogicElement{
     struct LogicElement** i;
     size_t max_input;
     size_t input_size;
-    size_t max_input_copy;
     ComputeFunction compute; 
     GateBool o;
 

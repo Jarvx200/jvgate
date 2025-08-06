@@ -12,6 +12,14 @@ typedef struct Element Element;
 typedef struct Switch  Switch;
 typedef struct Output Output;
 typedef struct Gate Gate;
+typedef struct GraphMeta GraphMeta;
+
+struct GraphMeta {
+    size_t max_input_copy;
+    GateBool visited;
+    GateBool in_stack;
+};
+
 
 struct Element{
     enum ElementType t;
@@ -19,6 +27,8 @@ struct Element{
     LogicElement   l;
     struct Element* corespondence[MAX_GATES_SIZE];
     size_t corespondence_size;
+    GraphMeta g_meta;
+    
 } ;
 
 struct Switch{
