@@ -34,7 +34,7 @@ make
 
 - [ ] Macros for consistent enum initialization
 - [ ] Serialization/Deserialization for saving and loading circuits 
-- [ ] Parsing the output of an element to multiple other elements
+- [x] Parsing the output of an element to multiple other elements 
 - [ ] Abstract user-defined component with an inner logic-gate graph
 - [ ] Slow down/ Speed up topsort for aditional rendering 
 - [ ] GUI Polish, Multiple collapsable windows to see the data in real time
