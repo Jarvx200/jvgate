@@ -4,6 +4,20 @@
 #include    <stdint.h>
 #include    <stddef.h>
 
+
+#define ELEMENTS \
+    TRANS(NOT) \
+    TRANS(AND) \
+    TRANS(NAND) \
+    TRANS(OR) \
+    TRANS(NOR) \
+    TRANS(XOR) \
+    TRANS(XNOR) \
+    TRANS(SWITCH) \
+    TRANS(OUTPUT) \
+    TRANS(LAST) 
+
+
 #define TRUE    1
 #define FALSE   0
 typedef char GateBool; 
@@ -34,16 +48,9 @@ extern const LogicElementMeta gateBinds[];
 
 
 enum ElementType{
-    NOT,
-    AND,
-    NAND,
-    OR,
-    NOR,
-    XOR,
-    XNOR,
-    SWITCH,
-    OUTPUT,
-    LAST
+    #define TRANS(e) e,
+    ELEMENTS
+    #undef TRANS
 };
 
 

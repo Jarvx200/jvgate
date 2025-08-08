@@ -5,16 +5,9 @@
 #include "raymath.h"
 
 char* nameBinds[] = {
-   [NOT] = "NOT", 
-   [AND] = "AND", 
-   [NAND] = "NAND", 
-   [OR] = "OR", 
-   [NOR] = "NOR", 
-   [XOR] = "XOR", 
-   [XNOR] = "XNOR", 
-   [SWITCH] = "SWITCH", 
-   [OUTPUT] = "OUTPUT",
-   [LAST]   = NULL
+    #define TRANS(x) #x,
+    ELEMENTS
+    #undef TRANS
 };
 
 uint16_t element_sizes[] = {

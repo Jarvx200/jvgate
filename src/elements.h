@@ -44,6 +44,9 @@ struct Output{
 struct Gate{
     struct Element e;
 };
+ 
+
+
 
 
 Element* create_element(enum ElementType t, Vector2 coords);
