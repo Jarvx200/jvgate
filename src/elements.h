@@ -8,6 +8,8 @@
 #include "raylib.h"
 #include "raymath.h"
 
+#define MTEXT 128
+
 typedef struct Element Element;
 typedef struct Switch  Switch;
 typedef struct Output Output;
@@ -46,12 +48,18 @@ struct Gate{
 };
  
 
+struct CompoundElement{
+    struct Element self;
+    struct Element* internal_graph;
+    char* label[MTEXT];
+};
 
 
 
 Element* create_element(enum ElementType t, Vector2 coords);
 void connect_gate(Element* x, Element* y);
 void disconnect_gate(Element* x, Element* y);
+void delete_element(Element* x);
 void create_inputs_and_output(Element* nlg, Vector2 coords);
 
 

@@ -149,3 +149,9 @@ void disconnect_gate(Element* x, Element* y){
     x->g.connection_output_point.corespondence = NULL;
 
 }
+
+
+void delete_element(Element* e){
+    for(size_t i=0; i < e->corespondence_size; i++)
+        disconnect_gate(e->corespondence[i],e);
+}

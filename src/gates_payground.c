@@ -17,11 +17,20 @@
 
 
 #define max(a,b) ((a) > (b) ? a : b)
+#define min(a,b) ((a) < (b) ? a : b)
+#define GET_REL_MOUSE() GetScreenToWorld2D(GetMousePosition(), playground_camera)
 
 
 
 
 static float zoom_speed = 0.1f;
+
+struct{
+    Vector2 start_drag,stop_drag;
+    GateBool dragging;
+
+} drag_select;
+
 
 static Vector2 last_mouse_postion;
  
@@ -85,12 +94,18 @@ static void handle_select(Element* clicked){
 }
 
 static void handle_click(Element* clicked){
-        if(clicked == NULL) return;
-            if(clicked->t == SWITCH){
-                Switch* sw = (Switch*) clicked; // Kewl downcast 
-                sw->on = sw->on ? FALSE : TRUE;
-                clicked->l.compute(&sw->e.l, sw->on);
-            }
+        
+        if(clicked == NULL){ drag_select.dragging=TRUE;
+            drag_select.start_drag = GET_REL_MOUSE();
+            return;
+        };
+        if(clicked->t == SWITCH){
+            Switch* sw = (Switch*) clicked; // Kewl downcast 
+            sw->on = sw->on ? FALSE : TRUE;
+            clicked->l.compute(&sw->e.l, sw->on);
+            if(acyclic(elements, elements_size) == TRUE)
+                top_sort(elements, elements_size, TRUE);
+        }
 
 }
 
@@ -105,6 +120,9 @@ static void render_gate_drop(){
 
     DrawRectangleRec(element_drop, GRID_COLOR);
     DrawRectangleLinesEx(element_drop, 2, GRAY);
+
+
+  
 }
 
 void handle_controls(){
@@ -125,8 +143,14 @@ void handle_controls(){
 
     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) handle_click(gate_select());
     if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) handle_select(gate_select());
+    if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){ drag_select.stop_drag = GET_REL_MOUSE();}
+    if(IsMouseButtonUp(MOUSE_BUTTON_LEFT)){ drag_select.dragging = FALSE;} 
 
-    if(IsKeyPressed(KEY_D));
+    if(IsKeyPressed(KEY_D)){
+        if(selected_gate){
+            delete_element(selected_gate);
+        }
+    };
 
 
     last_mouse_postion = current_mouse_position;
@@ -138,7 +162,15 @@ void render_grid(){
         DrawLine(0, i*CELLSIZE, SCREEN_WIDTH, i*CELLSIZE, GRID_COLOR);
     for(int i=0 ; i < SCREEN_WIDTH / CELLSIZE; i++)
         DrawLine(i*CELLSIZE, 0,  i*CELLSIZE, SCREEN_HEIGHT, GRID_COLOR);
-
+    
+    if(drag_select.dragging == TRUE)
+    DrawRectangleLines(
+        drag_select.start_drag.x,
+        drag_select.start_drag.y,
+        drag_select.stop_drag.x-drag_select.start_drag.x,
+        drag_select.stop_drag.y-drag_select.start_drag.y,
+        FGR_COLOR
+    );
 }
 
 void render_gates(){
@@ -179,8 +211,6 @@ void display_creation_buttons(){
     if(GuiButton((Rectangle){SCREEN_WIDTH-60, SCREEN_HEIGHT-60, 50,50}, "#131#")){ 
         if(acyclic(elements, elements_size) == TRUE)
             top_sort(elements, elements_size, TRUE);
-        else 
-            printf("NOT ACYCLIC\n");
         }
 }
 void start_graphics(){

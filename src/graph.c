@@ -53,9 +53,10 @@ static GateBool dfs_v(Element* root){
 }
 
 GateBool acyclic(Element** elements, size_t element_sizes){
+    restore_graph(elements, element_sizes);
     for(size_t i=0; i < element_sizes; i++){
         if(elements[i]->g_meta.visited == FALSE)
-            if(dfs_v(elements[i]) == FALSE)
+            if(dfs_v(elements[i]) == TRUE)
                 return FALSE;
     }
 
