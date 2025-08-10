@@ -55,6 +55,8 @@ enum ElementType{
 
 
 
+// TODO: Refactor static commons between Logic and Graphic in parrent
+
 
 struct LogicElement{
     struct LogicElement** i;
@@ -63,6 +65,7 @@ struct LogicElement{
     ComputeFunction compute; 
     GateBool o;
 
+    void* wrapper; // wrapper
 };
 
 

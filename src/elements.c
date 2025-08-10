@@ -30,10 +30,12 @@ Element* create_element(enum ElementType t, Vector2 coords){
         .g.connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*gateBinds[t].input_size),
         .g.max_connection_points = gateBinds[t].input_size,
         .g.connection_points_size=0,
-        .g.draw_element = (t < SWITCH ? graphicElementsMeta[0] : graphicElementsMeta[t]),
+        .g.draw_element = (t < SWITCH ? graphicElementsMeta[0] : graphicElementsMeta[t])
     };
 
+
     create_inputs_and_output(&e, coords);
+
 
     
     Element* wrapper;
@@ -44,6 +46,10 @@ Element* create_element(enum ElementType t, Vector2 coords){
     else if (t == OUTPUT)
         wrapper = (Element*)create_output(e);
 
+    // Ref the heap (reffed stack a couple times :p )
+    wrapper->g.wrapper = wrapper;
+    wrapper->l.wrapper = wrapper;
+
 
     return wrapper;
 }
@@ -51,6 +57,7 @@ Element* create_element(enum ElementType t, Vector2 coords){
 Output* create_output(Element e){
     Output* no = (Output*)(malloc(sizeof(Output)));
     no->e = e;
+
 
     no->powered = FALSE;
 
@@ -64,6 +71,7 @@ Switch* create_switch(Element e){
     ns->e = e;
     ns->on = FALSE;
     ns->e.l.o = FALSE;
+
 
     return ns;
 }
@@ -148,11 +156,14 @@ void disconnect_gate(Element* x, Element* y){
     if(ok == TRUE)
     y->g.connection_points_size-=1;
     x->g.connection_output_point.corespondence = NULL;
-
 }
 
 
 void delete_element(Element* e){
-    for(size_t i=0; i < e->corespondence_size; i++)
-        disconnect_gate(e->corespondence[i],e);
+    /* sizet will overflow (unsigned), move to signed type*/
+    int32_t i=e->l.input_size-1;
+    while(i >= 0){ disconnect_gate((Element*) e->l.i[i--]->wrapper,e); }
+
+    i=e->corespondence_size-1;
+    while(i >= 0){ disconnect_gate(e, e->corespondence[i--]);}
 }

@@ -28,7 +28,7 @@ static float zoom_speed = 0.1f;
 struct{
     Vector2 start_drag,stop_drag;
     GateBool dragging;
-
+    Element** selected_elements;
 } drag_select;
 
 
@@ -65,10 +65,14 @@ Element* gate_select(){
     return NULL;
 }
 
+Element** elements_in_rect(Rectangle r){
+    for(size_t i=0 ; i < element_sizes; i++);
+}
+
 
 static void add_gate(enum ElementType t){
     if(elements_size < MAX_GATES_SIZE)
-    elements[elements_size++] = create_element(t, GetScreenToWorld2D((Vector2){SCREEN_WIDTH/2.0f, SCREEN_HEIGHT/2.0f},playground_camera)); 
+        elements[elements_size++] = create_element(t, GetScreenToWorld2D((Vector2){SCREEN_WIDTH/2.0f, SCREEN_HEIGHT/2.0f},playground_camera)); 
 }
 
 static void handle_select(Element* clicked){
