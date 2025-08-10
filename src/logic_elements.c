@@ -33,7 +33,7 @@ void switch_comp(LogicElement* self, GateBool on){
     self->o = on;
 }
 void output_comp(LogicElement* self, GateBool *powered){
-    if(self->i[0] != NULL){
+    if(self->input_size > 0){
         *powered=self->i[0]->o;
         self->o=self->i[0]->o;
     }

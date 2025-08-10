@@ -89,6 +89,7 @@ static void handle_select(Element* clicked){
     } 
 
     connect_gate(selected_gate, clicked);
+    top_sort(elements,elements_size, TRUE);
     clicked->g.selected = selected_gate->g.selected = FALSE;
     clicked = NULL; selected_gate= NULL;
 }

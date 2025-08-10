@@ -10,6 +10,12 @@ void restore_graph(Element** elements, size_t elemets_size){
     }
 }
 
+void reset_output(Element** elements, size_t element_sizes){
+    for(size_t i=0; i < element_sizes; i++)
+        if(elements[i]->t == OUTPUT)
+            elements[i]->l.compute(&elements[i]->l, &(((Output*)elements[i])->powered));
+}
+
 
 void compute_output(Element* e){
     switch (e->t)
@@ -41,7 +47,7 @@ static GateBool dfs_v(Element* root){
     root->g_meta.in_stack = TRUE;
     root->g_meta.visited = TRUE;
     
-    for(int i=0 ; i < root->corespondence_size; i++){
+    for(size_t i=0 ; i < root->corespondence_size; i++){
         if(dfs_v(root->corespondence[i]))
             return TRUE;
     }
@@ -71,7 +77,7 @@ void top_sort(Element** elements, size_t elements_size, GateBool going){
     }
     GateBool changed = FALSE;
     for(size_t i=0; i < elements_size; i++){
-        if(elements[i]->l.input_size != elements[i]->l.max_input) { puts("INVALID CIRCUIT\n"); going = FALSE; break;}
+        if(elements[i]->l.input_size != elements[i]->l.max_input) { elements[i]->l.o=FALSE; reset_output(elements, elements_size); going = FALSE; break;}
         if(elements[i]->g_meta.max_input_copy == 0) { compute_output(elements[i]), changed = TRUE;}
     }
     top_sort(elements, elements_size, changed);

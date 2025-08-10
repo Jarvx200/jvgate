@@ -119,6 +119,7 @@ void connect_gate(Element* x, Element* y){
 // x ouput from y input
 void disconnect_gate(Element* x, Element* y){
 
+
     GateBool ok = FALSE;
     for(size_t i=0; i < y->l.input_size; i++){
         if(y->l.i[i] == &(x->l)) {y->l.i[i] = NULL; ok = TRUE; continue;}
