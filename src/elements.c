@@ -10,6 +10,9 @@
 
 
 
+Element* elements[MAX_GATES_SIZE];
+size_t elements_size = 0;
+
 Switch* create_switch(Element e);
 Gate* create_gate(Element e);
 Output* create_output(Element e);
@@ -158,6 +161,7 @@ void disconnect_gate(Element* x, Element* y){
     x->g.connection_output_point.corespondence = NULL;
 }
 
+// TODO:IMPORTANT: Extract array deletion logic in one method 
 
 void delete_element(Element* e){
     /* sizet will overflow (unsigned), move to signed type*/
@@ -166,4 +170,21 @@ void delete_element(Element* e){
 
     i=e->corespondence_size-1;
     while(i >= 0){ disconnect_gate(e, e->corespondence[i--]);}
+
+    GateBool ok = FALSE;
+    for(size_t i = 0 ; i < elements_size; i++){
+        if(elements[i] == e){
+            elements[i] = NULL; ok=TRUE;
+            continue;
+        }
+        if(ok == TRUE){
+            elements[i-1]=elements[i];
+        }
+    }
+    if(ok == TRUE)
+        elements_size-=1;
+
+    printf("\n%d\n", elements_size);
+
+    free(e);
 }

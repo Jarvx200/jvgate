@@ -22,6 +22,8 @@ struct GraphMeta {
     GateBool in_stack;
 };
 
+extern Element* elements[MAX_GATES_SIZE];
+extern size_t elements_size;
 
 struct Element{
     enum ElementType t;

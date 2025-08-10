@@ -36,8 +36,6 @@ static Vector2 last_mouse_postion;
  
 static const pthread_t input_thread;
 
-static Element* elements[MAX_GATES_SIZE];
-static size_t elements_size = 0;
 
 static Element* selected_gate = NULL;
 
@@ -151,10 +149,9 @@ void handle_controls(){
     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){ drag_select.stop_drag = GET_REL_MOUSE();}
     if(IsMouseButtonUp(MOUSE_BUTTON_LEFT)){ drag_select.dragging = FALSE;} 
 
-    if(IsKeyPressed(KEY_D)){
-        if(selected_gate){
-            delete_element(selected_gate);
-        }
+    if(IsKeyPressed(KEY_D) && selected_gate){
+        delete_element(selected_gate);
+        selected_gate = NULL;
     };
 
 

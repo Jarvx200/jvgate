@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 
+
 void restore_graph(Element** elements, size_t elemets_size){
     for(size_t i=0 ; i < elemets_size; i++){
         elements[i]->g_meta.max_input_copy = elements[i]->l.input_size;
