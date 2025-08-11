@@ -15,6 +15,7 @@
     TRANS(XNOR) \
     TRANS(SWITCH) \
     TRANS(OUTPUT) \
+    TRANS(COMPOUND) \
     TRANS(LAST) 
 
 
@@ -34,6 +35,7 @@ void xor_comp(LogicElement* self);
 void xnor_comp(LogicElement* self);
 void switch_comp(LogicElement* self, GateBool on);
 void ouput_comp(LogicElement* self, GateBool powered);
+void compound_comp(LogicElement* self);
 
 typedef void (*ComputeFunction)(struct LogicElement*, ...);   
 

@@ -41,6 +41,10 @@ void output_comp(LogicElement* self, GateBool *powered){
         *powered=FALSE;
 }
 
+void compound_comp(LogicElement* self){
+
+}
+
 
 
 //TODO: Output size as well
@@ -53,5 +57,6 @@ const LogicElementMeta gateBinds[] = {
     [XOR] = { (ComputeFunction)&xor_comp, 2},
     [XNOR] = { (ComputeFunction)&xnor_comp, 2},
     [SWITCH] = {(ComputeFunction)&switch_comp, 0},
-    [OUTPUT] = {(ComputeFunction)&output_comp, 1}
+    [OUTPUT] = {(ComputeFunction)&output_comp, 1},
+    [COMPOUND] = {(ComputeFunction)&compound_comp, 1},
 };

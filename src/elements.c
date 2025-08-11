@@ -16,9 +16,10 @@ size_t elements_size = 0;
 Switch* create_switch(Element e);
 Gate* create_gate(Element e);
 Output* create_output(Element e);
+Compound* create_compound(Element e, Element** inner_graph, size_t inner_graph_size);
 
 
-Element* create_element(enum ElementType t, Vector2 coords){
+Element* create_element(enum ElementType t, Vector2 coords, Element** inner_graph, size_t inner_graph_size){
     Element e = {
         .t = t,
         .g.pos = coords,
@@ -31,13 +32,11 @@ Element* create_element(enum ElementType t, Vector2 coords){
         .corespondence = NULL,
         .corespondence_size = 0,
         .g.connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*gateBinds[t].input_size),
-        .g.max_connection_points = gateBinds[t].input_size,
         .g.connection_points_size=0,
         .g.draw_element = (t < SWITCH ? graphicElementsMeta[0] : graphicElementsMeta[t])
     };
 
 
-    create_inputs_and_output(&e, coords);
 
 
     
@@ -48,13 +47,46 @@ Element* create_element(enum ElementType t, Vector2 coords){
        wrapper =  (Element*)create_switch(e);
     else if (t == OUTPUT)
         wrapper = (Element*)create_output(e);
+    else if ( t == COMPOUND)
+        wrapper = (Element*)create_compound(e, inner_graph, inner_graph_size);
 
     // Ref the heap (reffed stack a couple times :p )
-    wrapper->g.wrapper = wrapper;
-    wrapper->l.wrapper = wrapper;
+
+    if(wrapper != NULL){
+        wrapper->g.wrapper = wrapper;
+        wrapper->l.wrapper = wrapper;
+        wrapper->g.max_connection_points = &wrapper->l.max_input;
+
+        create_inputs_and_output(wrapper, coords);
+    }
 
 
     return wrapper;
+}
+
+Compound* create_compound(Element e, Element** inner_graph, size_t inner_graph_size){
+    if(inner_graph_size == 0)
+        return NULL;
+    Compound* c = (Compound*)(malloc(sizeof(Compound)));
+
+    free(e.l.i);
+    free(e.g.connection_points);
+
+    e.l.max_input= 0;
+    for(size_t i=0; i < inner_graph_size; i++){
+        if(inner_graph[i]->t == SWITCH)
+        e.l.max_input+=1;
+    }
+    
+    e.g_meta.max_input_copy = e.l.max_input;
+    e.l.i = (LogicElement**) malloc(sizeof(LogicElement*) * e.l.max_input);
+    e.g.connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*e.l.max_input);
+
+    c->e = e;
+
+
+
+    return c;
 }
 
 Output* create_output(Element e){
@@ -92,7 +124,7 @@ Gate* create_gate(Element e){
 
 //FIX: Rendering based on actula object size
 void create_inputs_and_output(Element* nlg, Vector2 coords){
-      for(size_t i=0 ; i < nlg->g.max_connection_points; i++){
+      for(size_t i=0 ; i < *(nlg->g.max_connection_points); i++){
         nlg->g.connection_points[i].coords.x = coords.x;
         nlg->g.connection_points[i].coords.y = coords.y+i*30+10;
     }

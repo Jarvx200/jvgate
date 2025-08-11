@@ -2,7 +2,7 @@ CC	=	gcc
 CFLAGS	=	-Wextra -Wall 
 
 SRCDIR	=	src/
-LDFLAGS = -lraylib -lm -ldl -lpthread -lGL -lrt -lX11 
+LDFLAGS = -lraylib -lm -ldl -lpthread -lGL -lrt -lX11 -g 
 
 
 SRCS := $(wildcard $(SRCDIR)*.c)

@@ -85,8 +85,15 @@ void elements_in_rect(){
 
 
 static void add_gate(enum ElementType t){
-    if(elements_size < MAX_GATES_SIZE)
-        elements[elements_size++] = create_element(t, GetScreenToWorld2D((Vector2){SCREEN_WIDTH/2.0f, SCREEN_HEIGHT/2.0f},playground_camera)); 
+    if(elements_size < MAX_GATES_SIZE){
+        Element* ce = create_element(t, GetScreenToWorld2D((Vector2){SCREEN_WIDTH/2.0f, SCREEN_HEIGHT/2.0f},playground_camera), 
+        t == COMPOUND ? drag_select.selected_elements : NULL, 
+        t == COMPOUND ? drag_select.selected_size   :   0
+        ); 
+        if(ce != NULL)
+            elements[elements_size++]=ce; 
+        
+    }
 }
 
 static void handle_select(Element* clicked){
@@ -165,6 +172,7 @@ void handle_controls(){
     if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) handle_select(gate_select());
     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){ drag_select.stop_drag = GET_REL_MOUSE();}
     if(IsMouseButtonUp(MOUSE_BUTTON_LEFT)){ if(drag_select.dragging) elements_in_rect(); drag_select.dragging = FALSE;} 
+    if(IsKeyPressed(KEY_G)){ add_gate(COMPOUND);} 
 
     if(IsKeyPressed(KEY_D)){
         if(selected_gate){

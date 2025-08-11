@@ -20,7 +20,7 @@ struct GraphicElement {
     Vector2 pos;
     struct ConnectionPoint* connection_points;
     struct ConnectionPoint connection_output_point;
-    size_t max_connection_points;
+    size_t *max_connection_points;
     size_t connection_points_size;
     GateBool selected;
 
@@ -36,6 +36,8 @@ extern char* nameBinds[];
 void draw_gate(enum ElementType t,struct GraphicElement* self);
 void draw_switch(enum ElementType t,struct GraphicElement* self, GateBool on);
 void draw_output(enum ElementType t,struct GraphicElement* self, GateBool powered); 
+void draw_compound(enum ElementType t,struct GraphicElement* self);
+
 
 
 

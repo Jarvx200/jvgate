@@ -15,6 +15,7 @@ typedef struct Switch  Switch;
 typedef struct Output Output;
 typedef struct Gate Gate;
 typedef struct GraphMeta GraphMeta;
+typedef struct Compound Compound;
 
 struct GraphMeta {
     size_t max_input_copy;
@@ -50,15 +51,15 @@ struct Gate{
 };
  
 
-struct CompoundElement{
-    struct Element self;
+struct Compound{
+    struct Element e;
     struct Element* internal_graph;
     char* label[MTEXT];
 };
 
 
 
-Element* create_element(enum ElementType t, Vector2 coords);
+Element* create_element(enum ElementType t, Vector2 coords, Element** inner_graph, size_t inner_graph_size);
 void connect_gate(Element* x, Element* y);
 void disconnect_gate(Element* x, Element* y);
 void delete_element(Element* x);
