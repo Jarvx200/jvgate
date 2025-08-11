@@ -9,5 +9,6 @@
 #define FGR_COLOR   WHITE
 #define GRID_COLOR (Color){ 255, 255, 255, 24}
 
+#define MAX_GATES_SIZE 1024
 
 #endif

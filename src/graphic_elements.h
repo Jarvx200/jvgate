@@ -24,6 +24,8 @@ struct GraphicElement {
     size_t connection_points_size;
     GateBool selected;
 
+    void* wrapper; // parent
+
     void (*draw_element)(enum ElementType t,struct GraphicElement* self, ...);
 }; 
 

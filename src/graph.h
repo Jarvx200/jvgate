@@ -7,7 +7,8 @@
 
 void restore_graph(Element** elements, size_t elemets_size);
 void top_sort(Element** elements, size_t elements_size, GateBool going);
-
+GateBool acyclic(Element** elements, size_t element_sizes);
+void reset_output(Element** elements, size_t element_sizes);
 
 
 #endif

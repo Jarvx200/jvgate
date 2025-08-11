@@ -10,6 +10,9 @@
 
 
 
+Element* elements[MAX_GATES_SIZE];
+size_t elements_size = 0;
+
 Switch* create_switch(Element e);
 Gate* create_gate(Element e);
 Output* create_output(Element e);
@@ -22,16 +25,20 @@ Element* create_element(enum ElementType t, Vector2 coords){
         .l.compute = gateBinds[t].comp,
         .l.i = malloc(sizeof(LogicElement*) * gateBinds[t].input_size), 
         .l.max_input  = gateBinds[t].input_size,
-        .l.max_input_copy = gateBinds[t].input_size,
+        .g_meta.max_input_copy = gateBinds[t].input_size,
+        .g_meta.visited = FALSE,
         .l.input_size = 0,
         .corespondence = NULL,
+        .corespondence_size = 0,
         .g.connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*gateBinds[t].input_size),
         .g.max_connection_points = gateBinds[t].input_size,
         .g.connection_points_size=0,
         .g.draw_element = (t < SWITCH ? graphicElementsMeta[0] : graphicElementsMeta[t])
     };
 
+
     create_inputs_and_output(&e, coords);
+
 
     
     Element* wrapper;
@@ -42,6 +49,10 @@ Element* create_element(enum ElementType t, Vector2 coords){
     else if (t == OUTPUT)
         wrapper = (Element*)create_output(e);
 
+    // Ref the heap (reffed stack a couple times :p )
+    wrapper->g.wrapper = wrapper;
+    wrapper->l.wrapper = wrapper;
+
 
     return wrapper;
 }
@@ -49,6 +60,7 @@ Element* create_element(enum ElementType t, Vector2 coords){
 Output* create_output(Element e){
     Output* no = (Output*)(malloc(sizeof(Output)));
     no->e = e;
+
 
     no->powered = FALSE;
 
@@ -62,6 +74,7 @@ Switch* create_switch(Element e){
     ns->e = e;
     ns->on = FALSE;
     ns->e.l.o = FALSE;
+
 
     return ns;
 }
@@ -90,16 +103,24 @@ void create_inputs_and_output(Element* nlg, Vector2 coords){
 
 }
 
+
+static GateBool check_corespondence(Element *x, Element *y){
+    for(size_t i=0; i < x->corespondence_size; i++)
+        if(x->corespondence[i] == y) return TRUE;
+    return FALSE;
+}
 // y input x output
 void connect_gate(Element* x, Element* y){
     
-    if(y->l.input_size == y->l.max_input  || x->corespondence != NULL){
-        if(x->corespondence == y)
+    GateBool coresponding = check_corespondence(x,y);
+    if(y->l.input_size == y->l.max_input || coresponding == TRUE){
+        if(coresponding == TRUE)
             disconnect_gate(x,y);
         return;
     }
     y->l.i[y->l.input_size++] = &(x->l);
-    x->corespondence = y;
+
+    x->corespondence[x->corespondence_size++] = y;
     
     
 
@@ -108,23 +129,62 @@ void connect_gate(Element* x, Element* y){
 
 // x ouput from y input
 void disconnect_gate(Element* x, Element* y){
-    if(x->corespondence != y)
-        return;
+
 
     GateBool ok = FALSE;
-    for(int i=0; i < y->l.input_size; i++){
+    for(size_t i=0; i < y->l.input_size; i++){
         if(y->l.i[i] == &(x->l)) {y->l.i[i] = NULL; ok = TRUE; continue;}
         if(ok == TRUE) y->l.i[i-1] = y->l.i[i];
     }
+
+    if(ok == TRUE)
     y->l.input_size-=1;
-    x->corespondence = NULL;
 
     ok = FALSE;
-    for(int i=0; i < y->g.connection_points_size; i++){
+    for(size_t i=0; i < x->corespondence_size; i++){
+        if(x->corespondence[i] == y){
+            x->corespondence[i]=NULL;
+            ok = TRUE;
+            continue;
+        } if (ok == TRUE){ x->corespondence[i-1] = x->corespondence[i]; }
+    }
+    if(ok == TRUE)
+    x->corespondence_size-=1;
+
+    ok = FALSE;
+    for(size_t i=0; i < y->g.connection_points_size; i++){
         if(y->g.connection_points[i].corespondence == &(x->g.connection_output_point)) {y->g.connection_points[i].corespondence = NULL; ok = TRUE; continue;}
         if(ok == TRUE) y->g.connection_points[i-1] = y->g.connection_points[i];
     }
+    if(ok == TRUE)
     y->g.connection_points_size-=1;
     x->g.connection_output_point.corespondence = NULL;
+}
 
+// TODO:IMPORTANT: Extract array deletion logic in one method 
+
+void delete_element(Element* e){
+    /* sizet will overflow (unsigned), move to signed type*/
+    int32_t i=e->l.input_size-1;
+    while(i >= 0){ disconnect_gate((Element*) e->l.i[i--]->wrapper,e); }
+
+    i=e->corespondence_size-1;
+    while(i >= 0){ disconnect_gate(e, e->corespondence[i--]);}
+
+    GateBool ok = FALSE;
+    for(size_t i = 0 ; i < elements_size; i++){
+        if(elements[i] == e){
+            elements[i] = NULL; ok=TRUE;
+            continue;
+        }
+        if(ok == TRUE){
+            elements[i-1]=elements[i];
+        }
+    }
+    if(ok == TRUE)
+        elements_size-=1;
+
+    printf("\n%d\n", elements_size);
+
+    free(e);
 }
