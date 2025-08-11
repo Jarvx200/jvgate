@@ -28,7 +28,8 @@ static float zoom_speed = 0.1f;
 struct{
     Vector2 start_drag,stop_drag;
     GateBool dragging;
-    Element** selected_elements;
+    Element* selected_elements[MAX_GATES_SIZE];
+    size_t selected_size;
 } drag_select;
 
 
@@ -63,8 +64,23 @@ Element* gate_select(){
     return NULL;
 }
 
-Element** elements_in_rect(Rectangle r){
-    for(size_t i=0 ; i < element_sizes; i++);
+static void reset_drag_array(){
+    for(int i=0 ; i < drag_select.selected_size; i++)
+        drag_select.selected_elements[i]->g.selected = FALSE;
+    drag_select.selected_size=0;
+}
+
+void elements_in_rect(){
+    reset_drag_array();
+    for(size_t i=0 ; i < elements_size; i++){
+        if(elements[i]->g.pos.x >= drag_select.start_drag.x &&
+        elements[i]->g.pos.x+element_sizes[GET_ELEMENT_SIZE(elements[i])] <= drag_select.stop_drag.x  &&
+        elements[i]->g.pos.y >= drag_select.start_drag.y &&
+        elements[i]->g.pos.y+element_sizes[GET_ELEMENT_SIZE(elements[i])] <= drag_select.stop_drag.y
+        )
+        { drag_select.selected_elements[drag_select.selected_size++]=elements[i]; elements[i]->g.selected=TRUE;}
+
+    }
 }
 
 
@@ -99,6 +115,7 @@ static void handle_select(Element* clicked){
 static void handle_click(Element* clicked){
         
         if(clicked == NULL){ drag_select.dragging=TRUE;
+            reset_drag_array();
             drag_select.start_drag = GET_REL_MOUSE();
             return;
         };
@@ -147,11 +164,16 @@ void handle_controls(){
     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) handle_click(gate_select());
     if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) handle_select(gate_select());
     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){ drag_select.stop_drag = GET_REL_MOUSE();}
-    if(IsMouseButtonUp(MOUSE_BUTTON_LEFT)){ drag_select.dragging = FALSE;} 
+    if(IsMouseButtonUp(MOUSE_BUTTON_LEFT)){ if(drag_select.dragging) elements_in_rect(); drag_select.dragging = FALSE;} 
 
-    if(IsKeyPressed(KEY_D) && selected_gate){
-        delete_element(selected_gate);
-        selected_gate = NULL;
+    if(IsKeyPressed(KEY_D)){
+        if(selected_gate){
+            delete_element(selected_gate);
+            selected_gate = NULL;
+        }
+
+        for(size_t i=0; i < drag_select.selected_size; i++)
+            delete_element(drag_select.selected_elements[i]);
     };
 
 
