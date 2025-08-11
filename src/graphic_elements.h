@@ -8,6 +8,7 @@
 typedef struct GraphicElement GraphicElement;
 typedef struct ConnectionPoint ConnectionPoint;
 
+#define COMPOUND_SIZE(x)  max(100, x*35 )
 #define GET_ELEMENT_SIZE(e) (e->t >= SWITCH ? e->t : 0)
 
 struct ConnectionPoint{

@@ -4,6 +4,10 @@
 #include "raylib.h"
 #include "raymath.h"
 
+
+#include "utils.h"
+
+
 char* nameBinds[] = {
     #define TRANS(x) #x,
     ELEMENTS
@@ -56,7 +60,7 @@ void draw_output(enum ElementType t, struct GraphicElement* self, GateBool power
 }
 
 void draw_compound(enum ElementType t, struct GraphicElement* self){
-    DrawRectangleLines(self->pos.x, self->pos.y, 100, 100, self->selected ? GREEN : FGR_COLOR);
+    DrawRectangleLines(self->pos.x, self->pos.y, 100, COMPOUND_SIZE(*self->max_connection_points), self->selected ? GREEN : FGR_COLOR);
     DrawText(nameBinds[t],self->pos.x+10, self->pos.y+10, 12, FGR_COLOR);
 
     DrawCircle(self->connection_output_point.coords.x, self->connection_output_point.coords.y, 5, RED);

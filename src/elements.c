@@ -82,6 +82,10 @@ Compound* create_compound(Element e, Element** inner_graph, size_t inner_graph_s
     e.l.i = (LogicElement**) malloc(sizeof(LogicElement*) * e.l.max_input);
     e.g.connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*e.l.max_input);
 
+    c->internal_graph = (Element**) malloc(sizeof(Element*)*inner_graph_size);
+    
+    // RESTORE HEAP GRAPH
+
     c->e = e;
 
 

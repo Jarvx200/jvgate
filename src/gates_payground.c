@@ -16,8 +16,7 @@
 #define CELLSIZE 25
 
 
-#define max(a,b) ((a) > (b) ? a : b)
-#define min(a,b) ((a) < (b) ? a : b)
+#include "utils.h"
 #define GET_REL_MOUSE() GetScreenToWorld2D(GetMousePosition(), playground_camera)
 
 
@@ -55,7 +54,8 @@ Element* gate_select(){
         if(worldPosition.x > elements[i]->g.pos.x
         && worldPosition.y > elements[i]->g.pos.y
         && worldPosition.x < elements[i]->g.pos.x+element_sizes[GET_ELEMENT_SIZE(elements[i])]
-        && worldPosition.y < elements[i]->g.pos.y+element_sizes[GET_ELEMENT_SIZE(elements[i])]
+        && worldPosition.y < elements[i]->g.pos.y+ ( elements[i]->t == COMPOUND ? COMPOUND_SIZE(*elements[i]->g.max_connection_points) : 
+        element_sizes[GET_ELEMENT_SIZE(elements[i])])
         ){
             return elements[i];
         }
@@ -140,7 +140,7 @@ static void render_gate_drop(){
     if(selected_gate == NULL) return;
     Rectangle element_drop = {
         .width  = element_sizes[GET_ELEMENT_SIZE(selected_gate)], 
-        .height = element_sizes[GET_ELEMENT_SIZE(selected_gate)],
+        .height = selected_gate->t != COMPOUND ? element_sizes[GET_ELEMENT_SIZE(selected_gate)] : COMPOUND_SIZE(*selected_gate->g.max_connection_points),
         .x  = (int)GetScreenToWorld2D(GetMousePosition(), playground_camera).x/CELLSIZE*CELLSIZE,
         .y  = (int)GetScreenToWorld2D(GetMousePosition(), playground_camera).y/CELLSIZE*CELLSIZE
     };
