@@ -53,9 +53,9 @@ Element* gate_select(){
 
         if(worldPosition.x > elements[i]->g.pos.x
         && worldPosition.y > elements[i]->g.pos.y
-        && worldPosition.x < elements[i]->g.pos.x+element_sizes[GET_ELEMENT_SIZE(elements[i])]
+        && worldPosition.x < elements[i]->g.pos.x+GET_ELEMENT_SIZE(elements[i])
         && worldPosition.y < elements[i]->g.pos.y+ ( elements[i]->t == COMPOUND ? COMPOUND_SIZE(*elements[i]->g.max_connection_points) : 
-        element_sizes[GET_ELEMENT_SIZE(elements[i])])
+        GET_ELEMENT_SIZE(elements[i]))
         ){
             return elements[i];
         }
@@ -74,9 +74,9 @@ void elements_in_rect(){
     reset_drag_array();
     for(size_t i=0 ; i < elements_size; i++){
         if(elements[i]->g.pos.x >= drag_select.start_drag.x &&
-        elements[i]->g.pos.x+element_sizes[GET_ELEMENT_SIZE(elements[i])] <= drag_select.stop_drag.x  &&
+        elements[i]->g.pos.x+GET_ELEMENT_SIZE(elements[i]) <= drag_select.stop_drag.x  &&
         elements[i]->g.pos.y >= drag_select.start_drag.y &&
-        elements[i]->g.pos.y+element_sizes[GET_ELEMENT_SIZE(elements[i])] <= drag_select.stop_drag.y
+        elements[i]->g.pos.y+GET_ELEMENT_SIZE(elements[i]) <= drag_select.stop_drag.y
         )
         { drag_select.selected_elements[drag_select.selected_size++]=elements[i]; elements[i]->g.selected=TRUE;}
 
@@ -139,17 +139,14 @@ static void handle_click(Element* clicked){
 static void render_gate_drop(){
     if(selected_gate == NULL) return;
     Rectangle element_drop = {
-        .width  = element_sizes[GET_ELEMENT_SIZE(selected_gate)], 
-        .height = selected_gate->t != COMPOUND ? element_sizes[GET_ELEMENT_SIZE(selected_gate)] : COMPOUND_SIZE(*selected_gate->g.max_connection_points),
+        .width  = GET_ELEMENT_SIZE(selected_gate), 
+        .height = selected_gate->t != COMPOUND ? GET_ELEMENT_SIZE(selected_gate) : COMPOUND_SIZE(*selected_gate->g.max_connection_points),
         .x  = (int)GetScreenToWorld2D(GetMousePosition(), playground_camera).x/CELLSIZE*CELLSIZE,
         .y  = (int)GetScreenToWorld2D(GetMousePosition(), playground_camera).y/CELLSIZE*CELLSIZE
     };
 
     DrawRectangleRec(element_drop, GRID_COLOR);
     DrawRectangleLinesEx(element_drop, 2, GRAY);
-
-
-  
 }
 
 void handle_controls(){
@@ -182,6 +179,8 @@ void handle_controls(){
 
         for(size_t i=0; i < drag_select.selected_size; i++)
             delete_element(drag_select.selected_elements[i]);
+
+        reset_output(elements, elements_size); 
     };
 
 
@@ -234,7 +233,6 @@ void render_gates(){
 }
 
 void display_creation_buttons(){
-    
     for(int i=0 ; i < LAST; i++){
         if (GuiButton((Rectangle){10+60*i, SCREEN_HEIGHT-60, 50, 50}, nameBinds[i])){
             add_gate(i);

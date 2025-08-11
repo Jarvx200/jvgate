@@ -220,7 +220,8 @@ void delete_element(Element* e){
     if(ok == TRUE)
         elements_size-=1;
 
-    printf("\n%d\n", elements_size);
+
+    
 
     free(e);
 }

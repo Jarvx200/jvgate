@@ -84,3 +84,8 @@ void top_sort(Element** elements, size_t elements_size, GateBool going){
     }
     top_sort(elements, elements_size, changed);
 }
+
+
+Element** dfs_create_internal(Element** elements, size_t elements_size){
+
+}
