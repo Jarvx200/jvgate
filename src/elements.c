@@ -22,7 +22,6 @@ Compound* create_compound(Element e, Element** inner_graph, size_t inner_graph_s
 Element* create_element(enum ElementType t, Vector2 coords, Element** inner_graph, size_t inner_graph_size){
     Element e = {
         .t = t,
-        .g.pos = coords,
         .l.compute = gateBinds[t].comp,
         .l.i = malloc(sizeof(LogicElement*) * gateBinds[t].input_size), 
         .l.max_input  = gateBinds[t].input_size,
@@ -31,10 +30,17 @@ Element* create_element(enum ElementType t, Vector2 coords, Element** inner_grap
         .l.input_size = 0,
         .corespondence = NULL,
         .corespondence_size = 0,
-        .g.connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*gateBinds[t].input_size),
-        .g.connection_points_size=0,
-        .g.draw_element = (t < SWITCH ? graphicElementsMeta[0] : graphicElementsMeta[t])
+        .g_meta.clone = NULL
     };
+
+    GraphicElement* g = (GraphicElement*) malloc(sizeof(GraphicElement));
+
+    g->pos = coords;
+    g->connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*gateBinds[t].input_size),
+    g->connection_points_size=0,
+    g->draw_element = (t < SWITCH ? graphicElementsMeta[0] : graphicElementsMeta[t]),
+
+    e.g = g;
 
 
 
@@ -53,9 +59,9 @@ Element* create_element(enum ElementType t, Vector2 coords, Element** inner_grap
     // Ref the heap (reffed stack a couple times :p )
 
     if(wrapper != NULL){
-        wrapper->g.wrapper = wrapper;
+        wrapper->g->wrapper = wrapper;
         wrapper->l.wrapper = wrapper;
-        wrapper->g.max_connection_points = &wrapper->l.max_input;
+        wrapper->g->max_connection_points = &wrapper->l.max_input;
 
         create_inputs_and_output(wrapper, coords);
     }
@@ -70,7 +76,7 @@ Compound* create_compound(Element e, Element** inner_graph, size_t inner_graph_s
     Compound* c = (Compound*)(malloc(sizeof(Compound)));
 
     free(e.l.i);
-    free(e.g.connection_points);
+    free(e.g->connection_points);
 
     e.l.max_input= 0;
     for(size_t i=0; i < inner_graph_size; i++){
@@ -80,17 +86,32 @@ Compound* create_compound(Element e, Element** inner_graph, size_t inner_graph_s
     
     e.g_meta.max_input_copy = e.l.max_input;
     e.l.i = (LogicElement**) malloc(sizeof(LogicElement*) * e.l.max_input);
-    e.g.connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*e.l.max_input);
+    e.g->connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*e.l.max_input);
 
     c->internal_graph = (Element**) malloc(sizeof(Element*)*inner_graph_size);
+
+    //clone_graph(&c->internal_graph, inner_graph, inner_graph_size);
     
     // RESTORE HEAP GRAPH
 
     c->e = e;
 
-
-
     return c;
+}
+
+void clone_graph(Element*** internal_graph,Element** elements, size_t g_size){
+    int ig_size = 0;
+    for(size_t i = 0; i < g_size; i++){
+        if(elements[i]->g_meta.clone == NULL){
+            (*internal_graph)[ig_size++]->g_meta.clone = (Element*) malloc(sizeof(Element));
+
+            Element* clone_details = (*internal_graph)[ig_size++]->g_meta.clone;
+
+            clone_details->g = NULL;
+
+        }
+
+    }
 }
 
 Output* create_output(Element e){
@@ -128,14 +149,14 @@ Gate* create_gate(Element e){
 
 //FIX: Rendering based on actula object size
 void create_inputs_and_output(Element* nlg, Vector2 coords){
-      for(size_t i=0 ; i < *(nlg->g.max_connection_points); i++){
-        nlg->g.connection_points[i].coords.x = coords.x;
-        nlg->g.connection_points[i].coords.y = coords.y+i*30+10;
+      for(size_t i=0 ; i < *(nlg->g->max_connection_points); i++){
+        nlg->g->connection_points[i].coords.x = coords.x;
+        nlg->g->connection_points[i].coords.y = coords.y+i*30+10;
     }
 
-    nlg->g.connection_output_point.coords.x = coords.x+element_sizes[nlg->t >= SWITCH ? nlg->t : 0];
-    nlg->g.connection_output_point.coords.y = coords.y+element_sizes[nlg->t >= SWITCH ? nlg->t : 0]/2-5;
-    nlg->g.selected = FALSE;
+    nlg->g->connection_output_point.coords.x = coords.x+element_sizes[nlg->t >= SWITCH ? nlg->t : 0];
+    nlg->g->connection_output_point.coords.y = coords.y+element_sizes[nlg->t >= SWITCH ? nlg->t : 0]/2-5;
+    nlg->g->selected = FALSE;
 
 }
 
@@ -160,7 +181,7 @@ void connect_gate(Element* x, Element* y){
     
     
 
-    y->g.connection_points[y->g.connection_points_size++].corespondence=&x->g.connection_output_point;
+    y->g->connection_points[y->g->connection_points_size++].corespondence=&x->g->connection_output_point;
 }
 
 // x ouput from y input
@@ -188,13 +209,13 @@ void disconnect_gate(Element* x, Element* y){
     x->corespondence_size-=1;
 
     ok = FALSE;
-    for(size_t i=0; i < y->g.connection_points_size; i++){
-        if(y->g.connection_points[i].corespondence == &(x->g.connection_output_point)) {y->g.connection_points[i].corespondence = NULL; ok = TRUE; continue;}
-        if(ok == TRUE) y->g.connection_points[i-1] = y->g.connection_points[i];
+    for(size_t i=0; i < y->g->connection_points_size; i++){
+        if(y->g->connection_points[i].corespondence == &(x->g->connection_output_point)) {y->g->connection_points[i].corespondence = NULL; ok = TRUE; continue;}
+        if(ok == TRUE) y->g->connection_points[i-1] = y->g->connection_points[i];
     }
     if(ok == TRUE)
-    y->g.connection_points_size-=1;
-    x->g.connection_output_point.corespondence = NULL;
+    y->g->connection_points_size-=1;
+    x->g->connection_output_point.corespondence = NULL;
 }
 
 // TODO:IMPORTANT: Extract array deletion logic in one method 

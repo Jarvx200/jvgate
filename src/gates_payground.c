@@ -51,10 +51,10 @@ Element* gate_select(){
 
         Vector2 worldPosition = GetScreenToWorld2D(GetMousePosition(), playground_camera);
 
-        if(worldPosition.x > elements[i]->g.pos.x
-        && worldPosition.y > elements[i]->g.pos.y
-        && worldPosition.x < elements[i]->g.pos.x+GET_ELEMENT_SIZE(elements[i])
-        && worldPosition.y < elements[i]->g.pos.y+ ( elements[i]->t == COMPOUND ? COMPOUND_SIZE(*elements[i]->g.max_connection_points) : 
+        if(worldPosition.x > elements[i]->g->pos.x
+        && worldPosition.y > elements[i]->g->pos.y
+        && worldPosition.x < elements[i]->g->pos.x+GET_ELEMENT_SIZE(elements[i])
+        && worldPosition.y < elements[i]->g->pos.y+ ( elements[i]->t == COMPOUND ? COMPOUND_SIZE(*elements[i]->g->max_connection_points) : 
         GET_ELEMENT_SIZE(elements[i]))
         ){
             return elements[i];
@@ -66,19 +66,19 @@ Element* gate_select(){
 
 static void reset_drag_array(){
     for(int i=0 ; i < drag_select.selected_size; i++)
-        drag_select.selected_elements[i]->g.selected = FALSE;
+        drag_select.selected_elements[i]->g->selected = FALSE;
     drag_select.selected_size=0;
 }
 
 void elements_in_rect(){
     reset_drag_array();
     for(size_t i=0 ; i < elements_size; i++){
-        if(elements[i]->g.pos.x >= drag_select.start_drag.x &&
-        elements[i]->g.pos.x+GET_ELEMENT_SIZE(elements[i]) <= drag_select.stop_drag.x  &&
-        elements[i]->g.pos.y >= drag_select.start_drag.y &&
-        elements[i]->g.pos.y+GET_ELEMENT_SIZE(elements[i]) <= drag_select.stop_drag.y
+        if(elements[i]->g->pos.x >= drag_select.start_drag.x &&
+        elements[i]->g->pos.x+GET_ELEMENT_SIZE(elements[i]) <= drag_select.stop_drag.x  &&
+        elements[i]->g->pos.y >= drag_select.start_drag.y &&
+        elements[i]->g->pos.y+GET_ELEMENT_SIZE(elements[i]) <= drag_select.stop_drag.y
         )
-        { drag_select.selected_elements[drag_select.selected_size++]=elements[i]; elements[i]->g.selected=TRUE;}
+        { drag_select.selected_elements[drag_select.selected_size++]=elements[i]; elements[i]->g->selected=TRUE;}
 
     }
 }
@@ -99,14 +99,14 @@ static void add_gate(enum ElementType t){
 static void handle_select(Element* clicked){
     if(clicked == NULL || clicked == selected_gate){
         if(selected_gate != NULL){
-            selected_gate->g.pos = GetScreenToWorld2D((Vector2){(int)GetMousePosition().x/CELLSIZE*CELLSIZE, (int)GetMousePosition().y/CELLSIZE*CELLSIZE}, playground_camera);
-            create_inputs_and_output(selected_gate, selected_gate->g.pos);
-            selected_gate->g.selected = FALSE; selected_gate=NULL;
+            selected_gate->g->pos = GetScreenToWorld2D((Vector2){(int)GetMousePosition().x/CELLSIZE*CELLSIZE, (int)GetMousePosition().y/CELLSIZE*CELLSIZE}, playground_camera);
+            create_inputs_and_output(selected_gate, selected_gate->g->pos);
+            selected_gate->g->selected = FALSE; selected_gate=NULL;
         }
         return;
     } 
 
-    clicked->g.selected = TRUE;
+    clicked->g->selected = TRUE;
     
     if(selected_gate == NULL) { 
         selected_gate = clicked;
@@ -115,7 +115,7 @@ static void handle_select(Element* clicked){
 
     connect_gate(selected_gate, clicked);
     top_sort(elements,elements_size, TRUE);
-    clicked->g.selected = selected_gate->g.selected = FALSE;
+    clicked->g->selected = selected_gate->g->selected = FALSE;
     clicked = NULL; selected_gate= NULL;
 }
 
@@ -140,7 +140,7 @@ static void render_gate_drop(){
     if(selected_gate == NULL) return;
     Rectangle element_drop = {
         .width  = GET_ELEMENT_SIZE(selected_gate), 
-        .height = selected_gate->t != COMPOUND ? GET_ELEMENT_SIZE(selected_gate) : COMPOUND_SIZE(*selected_gate->g.max_connection_points),
+        .height = selected_gate->t != COMPOUND ? GET_ELEMENT_SIZE(selected_gate) : COMPOUND_SIZE(*selected_gate->g->max_connection_points),
         .x  = (int)GetScreenToWorld2D(GetMousePosition(), playground_camera).x/CELLSIZE*CELLSIZE,
         .y  = (int)GetScreenToWorld2D(GetMousePosition(), playground_camera).y/CELLSIZE*CELLSIZE
     };
@@ -211,20 +211,20 @@ void render_gates(){
         {
         case SWITCH:
             Switch *sw = (Switch*) elements[i];
-            elements[i]->g.draw_element(elements[i]->t, &elements[i]->g, (GateBool)sw->on);
+            elements[i]->g->draw_element(elements[i]->t, elements[i]->g, (GateBool)sw->on);
             break;
         case OUTPUT:
             Output *o = (Output*) elements[i];
-            elements[i]->g.draw_element(elements[i]->t, &elements[i]->g, (GateBool)o->powered);
+            elements[i]->g->draw_element(elements[i]->t, elements[i]->g, (GateBool)o->powered);
             break;
         default:
-            elements[i]->g.draw_element(elements[i]->t, &elements[i]->g);
+            elements[i]->g->draw_element(elements[i]->t, elements[i]->g);
             break;
         }
-        for(size_t j=0 ; j < elements[i]->g.connection_points_size; j++){
+        for(size_t j=0 ; j < elements[i]->g->connection_points_size; j++){
             DrawLineBezier(
-                elements[i]->g.connection_points[j].corespondence->coords,
-                elements[i]->g.connection_points[j].coords,
+                elements[i]->g->connection_points[j].corespondence->coords,
+                elements[i]->g->connection_points[j].coords,
                 2,
                 FGR_COLOR
             );

@@ -21,6 +21,7 @@ struct GraphMeta {
     size_t max_input_copy;
     GateBool visited;
     GateBool in_stack;
+    Element* clone;
 };
 
 extern Element* elements[MAX_GATES_SIZE];
@@ -28,7 +29,7 @@ extern size_t elements_size;
 
 struct Element{
     enum ElementType t;
-    GraphicElement g;
+    GraphicElement* g;
     LogicElement   l;
     struct Element* corespondence[MAX_GATES_SIZE];
     size_t corespondence_size;
