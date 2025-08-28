@@ -83,7 +83,7 @@ void top_sort(Element** elements, size_t elements_size, GateBool going){
     }
     GateBool changed = FALSE;
     for(size_t i=0; i < elements_size; i++){
-        if(elements[i]->l.input_size != elements[i]->l.max_input) { elements[i]->l.o=FALSE; reset_output(elements, elements_size); going = FALSE; break;}
+        if(elements[i]->l.input_size != elements[i]->l.max_input) { *elements[i]->l.o=FALSE; reset_output(elements, elements_size); going = FALSE; break;}
         if(elements[i]->g_meta.max_input_copy == 0) { compute_output(elements[i]), changed = TRUE;}
     }
     top_sort(elements, elements_size, changed);

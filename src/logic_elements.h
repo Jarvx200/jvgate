@@ -4,17 +4,6 @@
 #include    <stdint.h>
 #include    <stddef.h>
 
-#define SIZEOF_NOT      sizeof(Element)
-#define SIZEOF_AND      sizeof(Element)
-#define SIZEOF_NAND     sizeof(Element)
-#define SIZEOF_OR       sizeof(Element)
-#define SIZEOF_NOR      sizeof(Element)
-#define SIZEOF_XOR      sizeof(Element)
-#define SIZEOF_XNOR     sizeof(Element)
-#define SIZEOF_SWITCH   sizeof(Switch)
-#define SIZEOF_OUTPUT   sizeof(Output)
-#define SIZEOF_COMPOUND sizeof(Compound)
-#define SIZEOF_LAST     0
 
 #define ELEMENTS \
     TRANS(NOT) \
@@ -48,6 +37,8 @@ void switch_comp(LogicElement* self, GateBool on);
 void ouput_comp(LogicElement* self, GateBool powered);
 void compound_comp(LogicElement* self);
 
+void swit_comp_compound(LogicElement* self, LogicElement* proxy);
+
 typedef void (*ComputeFunction)(struct LogicElement*, ...);   
 
 typedef struct {
@@ -76,7 +67,7 @@ struct LogicElement{
     size_t max_input;
     size_t input_size;
     ComputeFunction compute; 
-    GateBool o;
+    GateBool* o;
 
     void* wrapper; // wrapper
 };

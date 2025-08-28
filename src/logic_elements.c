@@ -2,44 +2,44 @@
 
 
 void not_comp(LogicElement* self){
-    self->o = !self->i[0]->o; 
+    *self->o = !*self->i[0]->o; 
 }
 
 void and_comp(LogicElement* self){
-    self->o = self->i[0]->o & self->i[1]->o;
+    *self->o = *self->i[0]->o & *self->i[1]->o;
 }
 
 void nand_comp(LogicElement* self){
-    self->o = !(self->i[0]->o & self->i[1]->o);
+    *self->o = !(*self->i[0]->o & *self->i[1]->o);
 }
 
 void or_comp(LogicElement* self){
-    self->o = self->i[0]->o | self->i[1]->o;
+    *self->o = *self->i[0]->o | *self->i[1]->o;
 }
 
 void nor_comp(LogicElement* self){
-    self->o = !(self->i[0]->o | self->i[1]->o);
+    *self->o = !(*self->i[0]->o | *self->i[1]->o);
 }
 
 void xor_comp(LogicElement* self){
-    self->o = self->i[0]->o ^ self->i[1]->o;
+    *self->o = *self->i[0]->o ^ *self->i[1]->o;
 }
 
 void xnor_comp(LogicElement* self){
-    self->o = self->i[0]->o == self->i[1]->o;
+    *self->o = *self->i[0]->o == *self->i[1]->o;
 }
 
 void switch_comp(LogicElement* self, GateBool on){
-    self->o = on;
+    *self->o = on;
 }
 void swit_comp_compound(LogicElement* self, LogicElement* proxy){
-    self->o =  proxy->o;
+    *self->o =  *proxy->o;
     
 }
 void output_comp(LogicElement* self, GateBool *powered){
     if(self->input_size > 0){
-        *powered=self->i[0]->o;
-        self->o=self->i[0]->o;
+        *powered=*self->i[0]->o;
+        *self->o=*self->i[0]->o;
     }
     else
         *powered=FALSE;

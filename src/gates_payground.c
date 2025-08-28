@@ -180,10 +180,12 @@ void handle_controls(){
             delete_element(selected_gate);
             selected_gate = NULL;
         }
-
+        //FIX: Remove NULLS from array
         for(size_t i=0; i < drag_select.selected_size; i++)
             delete_element(drag_select.selected_elements[i]);
 
+        
+        for(size_t i=0; i < elements_size; i++)    
         reset_output(elements, elements_size); 
     };
 
