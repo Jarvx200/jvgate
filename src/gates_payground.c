@@ -118,7 +118,7 @@ static void handle_select(Element* clicked){
     } 
 
     connect_gate(selected_gate, clicked);
-    top_sort(elements,elements_size, TRUE);
+    //top_sort(elements,elements_size, TRUE);
     clicked->g->selected = selected_gate->g->selected = FALSE;
     clicked = NULL; selected_gate= NULL;
 }
@@ -134,8 +134,8 @@ static void handle_click(Element* clicked){
             Switch* sw = (Switch*) clicked; // Kewl downcast 
             sw->on = sw->on ? FALSE : TRUE;
             clicked->l.compute(&sw->e.l, sw->on);
-            if(acyclic(elements, elements_size) == TRUE)
-                top_sort(elements, elements_size, TRUE);
+            //if(acyclic(elements, elements_size) == TRUE)
+                //top_sort(elements, elements_size, TRUE);
         }
 
 }

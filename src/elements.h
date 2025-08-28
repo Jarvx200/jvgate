@@ -59,6 +59,7 @@ struct Gate{
 struct Compound{
     struct Element e;
     struct Element** internal_graph;
+    size_t internal_graph_size;
     char* label[MTEXT];
 };
 

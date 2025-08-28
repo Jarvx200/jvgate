@@ -19,8 +19,8 @@ Output* create_output(Element e);
 Compound* create_compound(Element e, Element** inner_graph, size_t inner_graph_size);
 
 
-void clone_graph(Element*** internal_graph,Element** elements, size_t g_size, Element* node, size_t* ig_size, Compound* self);
-void clone_graph_loop(Element*** internal_graph,Element** elements, size_t g_size, Compound* self);
+size_t clone_graph_loop(Element*** internal_graph,Element** elements, size_t g_size, Compound* self);
+void clone_graph(Element*** internal_graph,Element** elements, size_t g_size, Element* node, size_t* ig_size, Compound* self, size_t sw_s);
 
 Element* create_element(enum ElementType t, Vector2 coords, Element** inner_graph, size_t inner_graph_size, GateBool graphic){
     Element e = {
@@ -102,26 +102,30 @@ Compound* create_compound(Element e, Element** inner_graph, size_t inner_graph_s
 
     c->internal_graph = (Element**) malloc(sizeof(Element*)*inner_graph_size);
 
-    clone_graph_loop(&c->internal_graph, inner_graph, inner_graph_size, c);
-    
-    // RESTORE HEAP GRAPH
+
+    c->internal_graph_size = clone_graph_loop(&c->internal_graph, inner_graph, inner_graph_size, c);
+   
+    printf("\n IGSIZE %d \n", c->internal_graph_size);
+
 
     c->e = e;
 
     return c;
 }
 
-void clone_graph_loop(Element*** internal_graph,Element** elements, size_t g_size, Compound* self){
+size_t clone_graph_loop(Element*** internal_graph,Element** elements, size_t g_size, Compound* self){
     size_t ig_size = 0;
     for(size_t i = 0; i < g_size; i++){
         if(elements[i]->l.max_input == 0){
-            clone_graph(internal_graph, elements, g_size, elements[i],  &ig_size, self);
+            clone_graph(internal_graph, elements, g_size, elements[i],  &ig_size, self, 0);
         }
     }
 
+    return ig_size;
+
 }
 
-void clone_graph(Element*** internal_graph,Element** elements, size_t g_size, Element* node, size_t* ig_size, Compound* self){
+void clone_graph(Element*** internal_graph,Element** elements, size_t g_size, Element* node, size_t* ig_size, Compound* self, size_t sw_s){
         if(node->g_meta.clone == NULL){
 
             printf("\n ELEMENT: %s \n", nameBinds[node->t]);
@@ -129,14 +133,20 @@ void clone_graph(Element*** internal_graph,Element** elements, size_t g_size, El
             Element* clone_details = node->g_meta.clone;
 
 
-
+            if(node->t == OUTPUT)
+                self->e.l.o = node->g_meta.clone->l.o; 
+            if(node->t == SWITCH){
+               clone_details->l.compute=NULL;
+               clone_details->l.o = NULL; 
+            }
+            
 
             (*internal_graph)[*ig_size]=clone_details;
             (*ig_size)++;
         } 
         for(size_t j = 0 ; j < node->corespondence_size; j++){
             if(node->corespondence[j]->g_meta.clone == NULL)
-                clone_graph(internal_graph, elements, g_size, node->corespondence[j], ig_size, self);
+                clone_graph(internal_graph, elements, g_size, node->corespondence[j], ig_size, self, sw_s);
             printf("\n DIRECTED CON: %s -> %s\n", nameBinds[node->t], nameBinds[node->corespondence[j]->t]);
             connect_gate(node->g_meta.clone, node->corespondence[j]->g_meta.clone);
         }
@@ -207,6 +217,14 @@ void connect_gate(Element* x, Element* y){
     }
     y->l.i[y->l.input_size++] = &(x->l);
 
+    if(y->t == COMPOUND){
+        Compound* cw = (Compound*) y;
+        for(size_t i=0 ; i < cw->internal_graph_size; i++)
+            if(cw->internal_graph[i]->t == SWITCH && cw->internal_graph[i]->l.o == NULL)
+                { cw->internal_graph[i]->l.o = x->l.o; break;}
+    }
+
+
     x->corespondence[x->corespondence_size++] = y;
     
     
@@ -274,7 +292,9 @@ void delete_element(Element* e){
 
 
     
-    free(e->g);
+    if(e->g != NULL)
+        free(e->g);
 
+    free(e->l.o);
     free(e);
 }
