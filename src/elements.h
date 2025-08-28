@@ -16,6 +16,7 @@ typedef struct Output Output;
 typedef struct Gate Gate;
 typedef struct GraphMeta GraphMeta;
 typedef struct Compound Compound;
+typedef struct ElementMemSize ElementMemSize;
 
 struct GraphMeta {
     size_t max_input_copy;
@@ -23,6 +24,9 @@ struct GraphMeta {
     GateBool in_stack;
     Element* clone;
 };
+
+
+
 
 extern Element* elements[MAX_GATES_SIZE];
 extern size_t elements_size;
@@ -60,7 +64,7 @@ struct Compound{
 
 
 
-Element* create_element(enum ElementType t, Vector2 coords, Element** inner_graph, size_t inner_graph_size);
+Element* create_element(enum ElementType t, Vector2 coords, Element** inner_graph, size_t inner_graph_size, GateBool graphic);
 void connect_gate(Element* x, Element* y);
 void disconnect_gate(Element* x, Element* y);
 void delete_element(Element* x);

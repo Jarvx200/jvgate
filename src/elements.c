@@ -18,8 +18,16 @@ Gate* create_gate(Element e);
 Output* create_output(Element e);
 Compound* create_compound(Element e, Element** inner_graph, size_t inner_graph_size);
 
+extern const size_t mem_size[] = {
+    #define TRANS(X) [X] =  SIZEOF_##X,
+    ELEMENTS
+    #undef TRANS
+};
 
-Element* create_element(enum ElementType t, Vector2 coords, Element** inner_graph, size_t inner_graph_size){
+void clone_graph(Element*** internal_graph,Element** elements, size_t g_size, Element* node, size_t* ig_size);
+void clone_graph_loop(Element*** internal_graph,Element** elements, size_t g_size);
+
+Element* create_element(enum ElementType t, Vector2 coords, Element** inner_graph, size_t inner_graph_size, GateBool graphic){
     Element e = {
         .t = t,
         .l.compute = gateBinds[t].comp,
@@ -33,14 +41,16 @@ Element* create_element(enum ElementType t, Vector2 coords, Element** inner_grap
         .g_meta.clone = NULL
     };
 
-    GraphicElement* g = (GraphicElement*) malloc(sizeof(GraphicElement));
+    if(graphic == TRUE){
+        GraphicElement* g = (GraphicElement*) malloc(sizeof(GraphicElement));
 
-    g->pos = coords;
-    g->connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*gateBinds[t].input_size),
-    g->connection_points_size=0,
-    g->draw_element = (t < SWITCH ? graphicElementsMeta[0] : graphicElementsMeta[t]),
+        g->pos = coords;
+        g->connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*gateBinds[t].input_size),
+        g->connection_points_size=0,
+        g->draw_element = (t < SWITCH ? graphicElementsMeta[0] : graphicElementsMeta[t]),
 
-    e.g = g;
+        e.g = g;
+    }
 
 
 
@@ -59,9 +69,11 @@ Element* create_element(enum ElementType t, Vector2 coords, Element** inner_grap
     // Ref the heap (reffed stack a couple times :p )
 
     if(wrapper != NULL){
-        wrapper->g->wrapper = wrapper;
+        if(graphic == TRUE){
+            wrapper->g->wrapper = wrapper;
+            wrapper->g->max_connection_points = &wrapper->l.max_input;
+        }
         wrapper->l.wrapper = wrapper;
-        wrapper->g->max_connection_points = &wrapper->l.max_input;
 
         create_inputs_and_output(wrapper, coords);
     }
@@ -76,6 +88,7 @@ Compound* create_compound(Element e, Element** inner_graph, size_t inner_graph_s
     Compound* c = (Compound*)(malloc(sizeof(Compound)));
 
     free(e.l.i);
+    if(e.g != NULL)
     free(e.g->connection_points);
 
     e.l.max_input= 0;
@@ -86,11 +99,12 @@ Compound* create_compound(Element e, Element** inner_graph, size_t inner_graph_s
     
     e.g_meta.max_input_copy = e.l.max_input;
     e.l.i = (LogicElement**) malloc(sizeof(LogicElement*) * e.l.max_input);
+    if(e.g != NULL)
     e.g->connection_points = (ConnectionPoint*)malloc(sizeof(ConnectionPoint)*e.l.max_input);
 
     c->internal_graph = (Element**) malloc(sizeof(Element*)*inner_graph_size);
 
-    //clone_graph(&c->internal_graph, inner_graph, inner_graph_size);
+    clone_graph_loop(&c->internal_graph, inner_graph, inner_graph_size);
     
     // RESTORE HEAP GRAPH
 
@@ -99,19 +113,35 @@ Compound* create_compound(Element e, Element** inner_graph, size_t inner_graph_s
     return c;
 }
 
-void clone_graph(Element*** internal_graph,Element** elements, size_t g_size){
-    int ig_size = 0;
+void clone_graph_loop(Element*** internal_graph,Element** elements, size_t g_size){
+    size_t ig_size = 0;
     for(size_t i = 0; i < g_size; i++){
-        if(elements[i]->g_meta.clone == NULL){
-            (*internal_graph)[ig_size++]->g_meta.clone = (Element*) malloc(sizeof(Element));
-
-            Element* clone_details = (*internal_graph)[ig_size++]->g_meta.clone;
-
-            clone_details->g = NULL;
-
+        if(elements[i]->l.max_input == 0){
+            clone_graph(internal_graph, elements, g_size, elements[i],  &ig_size);
         }
-
     }
+
+}
+
+void clone_graph(Element*** internal_graph,Element** elements, size_t g_size, Element* node, size_t* ig_size){
+        if(node->g_meta.clone == NULL){
+
+            printf("\n ELEMENT: %s \n", nameBinds[node->t]);
+            node->g_meta.clone =  create_element(node->t, (Vector2){0,0}, NULL, 0, FALSE); 
+            Element* clone_details = node->g_meta.clone;
+            clone_details->g = NULL;
+            clone_details->corespondence_size = 0;
+
+
+            (*internal_graph)[*ig_size]=clone_details;
+            (*ig_size)++;
+        } 
+        for(size_t j = 0 ; j < node->corespondence_size; j++){
+            if(node->corespondence[j]->g_meta.clone == NULL)
+                clone_graph(internal_graph, elements, g_size, node->corespondence[j], ig_size);
+            printf("\n DIRECTED CON: %s -> %s\n", nameBinds[node->t], nameBinds[node->corespondence[j]->t]);
+            connect_gate(node->g_meta.clone, node->corespondence[j]->g_meta.clone);
+        }
 }
 
 Output* create_output(Element e){
@@ -149,6 +179,8 @@ Gate* create_gate(Element e){
 
 //FIX: Rendering based on actula object size
 void create_inputs_and_output(Element* nlg, Vector2 coords){
+    if(nlg->g == NULL)
+        return;
       for(size_t i=0 ; i < *(nlg->g->max_connection_points); i++){
         nlg->g->connection_points[i].coords.x = coords.x;
         nlg->g->connection_points[i].coords.y = coords.y+i*30+10;
@@ -180,7 +212,7 @@ void connect_gate(Element* x, Element* y){
     x->corespondence[x->corespondence_size++] = y;
     
     
-
+    if(x->g == NULL || y->g == NULL) return;
     y->g->connection_points[y->g->connection_points_size++].corespondence=&x->g->connection_output_point;
 }
 
@@ -209,6 +241,7 @@ void disconnect_gate(Element* x, Element* y){
     x->corespondence_size-=1;
 
     ok = FALSE;
+    if(y->g == NULL) return;
     for(size_t i=0; i < y->g->connection_points_size; i++){
         if(y->g->connection_points[i].corespondence == &(x->g->connection_output_point)) {y->g->connection_points[i].corespondence = NULL; ok = TRUE; continue;}
         if(ok == TRUE) y->g->connection_points[i-1] = y->g->connection_points[i];
@@ -243,6 +276,7 @@ void delete_element(Element* e){
 
 
     
+    free(e->g);
 
     free(e);
 }

@@ -51,6 +51,8 @@ Element* gate_select(){
 
         Vector2 worldPosition = GetScreenToWorld2D(GetMousePosition(), playground_camera);
 
+        if(elements[i]->g == NULL) continue;
+
         if(worldPosition.x > elements[i]->g->pos.x
         && worldPosition.y > elements[i]->g->pos.y
         && worldPosition.x < elements[i]->g->pos.x+GET_ELEMENT_SIZE(elements[i])
@@ -73,6 +75,7 @@ static void reset_drag_array(){
 void elements_in_rect(){
     reset_drag_array();
     for(size_t i=0 ; i < elements_size; i++){
+        if(elements[i]->g == NULL) continue;
         if(elements[i]->g->pos.x >= drag_select.start_drag.x &&
         elements[i]->g->pos.x+GET_ELEMENT_SIZE(elements[i]) <= drag_select.stop_drag.x  &&
         elements[i]->g->pos.y >= drag_select.start_drag.y &&
@@ -88,8 +91,9 @@ static void add_gate(enum ElementType t){
     if(elements_size < MAX_GATES_SIZE){
         Element* ce = create_element(t, GetScreenToWorld2D((Vector2){SCREEN_WIDTH/2.0f, SCREEN_HEIGHT/2.0f},playground_camera), 
         t == COMPOUND ? drag_select.selected_elements : NULL, 
-        t == COMPOUND ? drag_select.selected_size   :   0
-        ); 
+        t == COMPOUND ? drag_select.selected_size   :   0,
+        TRUE
+    ); 
         if(ce != NULL)
             elements[elements_size++]=ce; 
         
@@ -206,7 +210,7 @@ void render_grid(){
 
 void render_gates(){
     for(size_t i=0 ; i < elements_size; i++){
-
+        if(elements[i]->g == NULL) continue;
         switch (elements[i]->t)
         {
         case SWITCH:
@@ -221,7 +225,9 @@ void render_gates(){
             elements[i]->g->draw_element(elements[i]->t, elements[i]->g);
             break;
         }
+        
         for(size_t j=0 ; j < elements[i]->g->connection_points_size; j++){
+            if(elements[j]->g == NULL) continue;
             DrawLineBezier(
                 elements[i]->g->connection_points[j].corespondence->coords,
                 elements[i]->g->connection_points[j].coords,
@@ -229,6 +235,7 @@ void render_gates(){
                 FGR_COLOR
             );
         }
+    
     }
 }
 

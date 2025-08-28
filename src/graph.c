@@ -27,6 +27,10 @@ void compute_output(Element* e){
         case OUTPUT:
             e->l.compute(&e->l, &(((Output*)e)->powered));
             break;
+        case COMPOUND:
+            Compound* c = (Compound*) e;
+            
+            break;
         default:
             e->l.compute(&e->l);
             break;
@@ -86,6 +90,5 @@ void top_sort(Element** elements, size_t elements_size, GateBool going){
 }
 
 
-Element** dfs_create_internal(Element** elements, size_t elements_size){
 
-}
+

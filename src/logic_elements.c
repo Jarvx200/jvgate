@@ -32,6 +32,10 @@ void xnor_comp(LogicElement* self){
 void switch_comp(LogicElement* self, GateBool on){
     self->o = on;
 }
+void swit_comp_compound(LogicElement* self, LogicElement* proxy){
+    self->o =  proxy->o;
+    
+}
 void output_comp(LogicElement* self, GateBool *powered){
     if(self->input_size > 0){
         *powered=self->i[0]->o;
@@ -42,7 +46,7 @@ void output_comp(LogicElement* self, GateBool *powered){
 }
 
 void compound_comp(LogicElement* self){
-
+    
 }
 
 

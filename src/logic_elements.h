@@ -4,6 +4,17 @@
 #include    <stdint.h>
 #include    <stddef.h>
 
+#define SIZEOF_NOT      sizeof(Element)
+#define SIZEOF_AND      sizeof(Element)
+#define SIZEOF_NAND     sizeof(Element)
+#define SIZEOF_OR       sizeof(Element)
+#define SIZEOF_NOR      sizeof(Element)
+#define SIZEOF_XOR      sizeof(Element)
+#define SIZEOF_XNOR     sizeof(Element)
+#define SIZEOF_SWITCH   sizeof(Switch)
+#define SIZEOF_OUTPUT   sizeof(Output)
+#define SIZEOF_COMPOUND sizeof(Compound)
+#define SIZEOF_LAST     0
 
 #define ELEMENTS \
     TRANS(NOT) \
