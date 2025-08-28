@@ -25,18 +25,13 @@ void compute_output(Element* e){
         case SWITCH:
             if(e->l.compute != NULL)
                 e->l.compute(&e->l, ((Switch*)e)->on);
-
-            printf("SWITCH:%d\n", *e->l.o);
             break;
         case OUTPUT:
             e->l.compute(&e->l, &(((Output*)e)->powered));
-            printf("OUTPUT:%d\n", *e->l.o);
             break;
         case COMPOUND:
             Compound* c = (Compound*) e;
-            printf("\n----START COMPOUND IGS: %d -----\n", c->internal_graph_size );
             top_sort(c->internal_graph, c->internal_graph_size, TRUE);
-            puts("\n----END COMPOUND-----\n");
             break;
         default:
             e->l.compute(&e->l);

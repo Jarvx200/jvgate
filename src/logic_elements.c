@@ -29,6 +29,7 @@ void xnor_comp(LogicElement* self){
     *self->o = *self->i[0]->o == *self->i[1]->o;
 }
 
+//TODO: swap comp function if in compound
 void switch_comp(LogicElement* self, GateBool on){
     *self->o = on;
 }
@@ -41,9 +42,6 @@ void output_comp(LogicElement* self, GateBool *powered){
         *powered=FALSE;
 }
 
-void compound_comp(LogicElement* self){
-    
-}
 
 
 
@@ -58,5 +56,5 @@ const LogicElementMeta gateBinds[] = {
     [XNOR] = { (ComputeFunction)&xnor_comp, 2},
     [SWITCH] = {(ComputeFunction)&switch_comp, 0},
     [OUTPUT] = {(ComputeFunction)&output_comp, 1},
-    [COMPOUND] = {(ComputeFunction)&compound_comp, 1},
+    [COMPOUND] = {NULL, 1},
 };

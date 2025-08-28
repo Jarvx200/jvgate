@@ -35,7 +35,6 @@ void xor_comp(LogicElement* self);
 void xnor_comp(LogicElement* self);
 void switch_comp(LogicElement* self, GateBool on);
 void ouput_comp(LogicElement* self, GateBool powered);
-void compound_comp(LogicElement* self);
 
 void swit_comp_compound(LogicElement* self, LogicElement* proxy);
 

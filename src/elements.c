@@ -103,12 +103,11 @@ Compound* create_compound(Element e, Element** inner_graph, size_t inner_graph_s
     c->internal_graph = (Element**) malloc(sizeof(Element*)*inner_graph_size);
 
 
+    c->e = e;
     c->internal_graph_size = clone_graph_loop(&c->internal_graph, inner_graph, inner_graph_size, c);
    
-    printf("\n IGSIZE %d \n", c->internal_graph_size);
 
 
-    c->e = e;
 
     return c;
 }
@@ -128,13 +127,13 @@ size_t clone_graph_loop(Element*** internal_graph,Element** elements, size_t g_s
 void clone_graph(Element*** internal_graph,Element** elements, size_t g_size, Element* node, size_t* ig_size, Compound* self, size_t sw_s){
         if(node->g_meta.clone == NULL){
 
-            printf("\n ELEMENT: %s \n", nameBinds[node->t]);
             node->g_meta.clone =  create_element(node->t, (Vector2){0,0}, NULL, 0, FALSE); 
             Element* clone_details = node->g_meta.clone;
 
 
             if(node->t == OUTPUT)
                 self->e.l.o = node->g_meta.clone->l.o; 
+                printf("INIT: %p\n", self->e.l.o );
             if(node->t == SWITCH){
                clone_details->l.compute=NULL;
                clone_details->l.o = NULL; 
